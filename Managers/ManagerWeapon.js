@@ -1,6 +1,7 @@
 const PARAMS = require('../Constants');
 const Crypto = require('./ManagerCrypto');
 
+
 module.exports.forgeWeapon = function (_weapon1, _weapon2, callback) {
 
     var newWeapon = {

@@ -19,6 +19,12 @@ module.exports.findOne = function (_collection, query, callback) {
         callback(result);
     });
 }
+module.exports.findOneByFields = function (_collection, query, fields, callback) {
+    db.collection(_collection).findOne(query, fields, function (err, result) {
+        if (err) return callback(false);
+        callback(result);
+    });
+}
 module.exports.update = function (_collection, query, value, callback) {
     db.collection(_collection).updateOne(query, value, function (err, result) {
         if (err) return callback(false);

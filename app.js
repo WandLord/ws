@@ -25,17 +25,18 @@ app.get('/login/:id', function (req, res) {
 app.get('/joinbattle/:id', function (req, res) {
   var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   let id = req.params.id;
-  User.JoinBattlel(id, function(result) {
+  User.joinBattle(id, function(result) {
     res.send(result);
   });
 });
 
-app.get('/param/:param', function (req, res) {
-  let id = req.params.param;
-    console.log(global.PARAMS.FORGE_PRICE);
-    res.send(global.PARAMS.FORGE_PRICE);
+app.get('/leftBattle/:id', function (req, res) {
+  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  let id = req.params.id;
+  User.leftBattle(id, function(result) {
+    res.send(result);
+  });
 });
-
 
 app.post('/forge', function (req, res) {
   var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -62,8 +63,8 @@ app.use((req, res) => {
   res.status(404).send({ message: 'Not Found', path: req.originalUrl })
 })
 
-app.listen(3000, () => {
+app.listen(3000, async function(){
   console.log("El servidor está inicializado en el puerto 3000");
-  MongoDB.connect();
+  await MongoDB.connect();
   Boss.start();
 });

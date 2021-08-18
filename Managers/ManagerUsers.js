@@ -89,39 +89,76 @@ var getUserData = function (userID, callback) {
     });
 }
 
-function enableFigthing(userID, callback) {
+var findUserInBoss = function (_layer, userID, callback) {
+    var query = { layer: _layer };
+    var _figthing = "fighting." + userID;
+    var _fields = { projection: { [_figthing]: 1, _id: 0 } };
+    MongoDB.findOneByFields(collection_boss, query, _fields, function (result) {
+        callback(result);
+    });
+}
+
+function changeFigthingStatus(userID, bool, callback) {
     var query = { _id: MongoDB.createID(userID) };
-    value = { $set: { fighting: true } };
+    value = { $set: { fighting: bool } };
     MongoDB.update(collectionusers, query, value, function (result) {
         callback(result);
     });
 }
 
-module.exports.JoinBattlel = function (_user, callback) {
+module.exports.joinBattle = function (_user, callback) {
     getUserData(_user, function (user) {
         if (user != false || user.fighting == true) {
             var boss = BossManager.Status();
-            enableFigthing(_user, function (figthing) {
+            changeFigthingStatus(_user, true, function (figthing) {
                 console.log(figthing);
-                var userField = "fighting." + _user;
+                var userField1 = "fighting." + _user + ".dps";
+                var userField2 = "fighting." + _user + ".figth";
+                var userField3 = "fighting." + _user + ".lastJoin";
                 var quey = { layer: boss.layer };
-
-                var userValue = { dps: user.inventory[user.currentWeapon].dps, figth: true, lastJoin: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''), totalDPS: 0 };
-                var value = { $set: { [userField]: userValue } };
-
+                var value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]:  true, [userField3]: new Date().toISOString()} };
                 if (figthing) {
                     MongoDB.update(collection_boss, quey, value, function (result) {
+                        BossManager.joinPlayer(user.inventory[user.currentWeapon].dps);
                         callback(result);
                     })
                 }
                 else {
-                    callback("HACKER?");
+                    callback(false);
                 }
             });
         } else {
-            callback(false);
+            callback("hacker?");
         }
     });
+}
 
 
+
+module.exports.leftBattle = function (_user, callback) {
+    var boss = BossManager.Status();
+    findUserInBoss(boss.layer, _user, function (bossUserData) {
+        bossUserData = bossUserData.fighting["611a3a10ce221181b313e83d"];
+        if (bossUserData != false) {
+            changeFigthingStatus(_user, false, function (figthing) {
+                var userField1 = "fighting." + _user + ".totalDPS";
+                var userField2 = "fighting." + _user + ".figth";
+                var quey = { layer: boss.layer };
+                var _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
+                var value = { $inc: { [userField1]: _totaldps }, $set: {[userField2] : false} };
+                if (figthing) {
+                    MongoDB.update(collection_boss, quey, value, function (result) {
+                        BossManager.joinPlayer(bossUserData.dps * -1);
+                        callback(result);
+                    })
+                }
+                else {
+                    callback(false);
+                }
+            });
+        } else {
+            callback("hacker?");
+        }
+
+    });
 }
