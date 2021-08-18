@@ -84,7 +84,7 @@ module.exports.createUser = function (userID, userName, callback) {
 }
 var getUserData = function (userID, callback) {
     var query = { _id: MongoDB.createID(userID) };
-    MongoDB.findOne(collectionusers, query, function (result) {
+    MongoDB.findOne(collectionusers, query, {}, function (result) {
         callback(result);
     });
 }

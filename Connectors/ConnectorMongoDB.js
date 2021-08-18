@@ -7,14 +7,14 @@ const client = new MongoClient(uri);
 var db = {};
 
 
-module.exports.find = function (_collection, query, callback) {
-    db.collection(_collection).find(query).toArray(function (err, result) {
+module.exports.find = function (_collection, query, fields, callback) {
+    db.collection(_collection).find(query, fields).toArray(function (err, result) {
         if (err) return callback(false);
         callback(result);
     });
 }
-module.exports.findOne = function (_collection, query, callback) {
-    db.collection(_collection).findOne(query, function (err, result) {
+module.exports.findOne = function (_collection, query, fields, callback) {
+    db.collection(_collection).findOne(query, fields, function (err, result) {
         if (err) return callback(false);
         callback(result);
     });
