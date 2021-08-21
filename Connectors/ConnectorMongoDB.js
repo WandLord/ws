@@ -39,6 +39,13 @@ module.exports.insert = function (_collection, value, callback) {
     });
 }
 
+module.exports.delete = function(_collection, query, callback){
+    db.collection(_collection).deleteOne(query, function (err, result) {
+        if (err) return callback(false);
+        callback(true);
+    });
+}
+
 
 module.exports.connect = async function () {
     await client.connect();

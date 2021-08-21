@@ -16,7 +16,6 @@ module.exports.start = async function () {
     while (true) {
         await sleep(1000);
         actualBoss.actHP -= totaldps;
-        console.log(actualBoss.actHP);
         updateBossData();
         if (actualBoss.actHP <= 0) {
             await battleEnd();
@@ -33,7 +32,6 @@ async function battleEnd() {
     MongoDB.findOne(collection_boss, query, order, function (result) {
         auxBoss = result;
     });
-
     await loadBoss();
 }
 
@@ -42,48 +40,40 @@ module.exports.joinPlayer = function (_dps) {
 }
 
 async function loadBoss() {
-    var query = {};
-    var order = { "sort": ['layer', 'desc'], projection: { fighting: 0 } };
+    var query = { enable: true };
+    var order = { projection: { fighting: 0 } };
     MongoDB.findOne(collection_boss, query, order, function (result) {
         if (result.actHP <= 0) {
             battleEnd();
         } else {
             if (result.enable == true) {
-                console.log("asd");
-                loadDPS(result.layer, function(result2){
-                    actualBoss = result;
-                    actualBoss.actHP -= result2;
-                });
+                actualBoss = result;
+                loadDPS(actualBoss._id)
             }
         }
-       
     });
 
 }
 
-function loadDPS(_layer, callback) {
-    var query = { layer: _layer };
+async function loadDPS(id) {
+    var query = { _id: id };
     var order = {};
-    var bossDPSTotal = 0; 
     MongoDB.findOne(collection_boss, query, order, function (result) {
         Object.keys(result.fighting).forEach(function (key) {
             var user = result.fighting[key];
             console.log(user);
             if (user.figth == true) {
-                actualBoss
                 totaldps += user.dps;
-                bossDPSTotal += ((new Date().getTime() - new Date(user.lastJoin).getTime()) / 1000) * user.dps;
             }
         });
-        callback();
     });
-    
+
 }
 
 async function updateBossData() {
     if (!updatingData) {
         updatingData = true;
-        var query = { layer: actualBoss.layer };
+        var query = { enable: true };
         var value = { $set: { actHP: actualBoss.actHP } };
         MongoDB.update(collection_boss, query, value, function (result) {
             updatingData = false;

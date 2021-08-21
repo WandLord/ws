@@ -17,7 +17,7 @@ app.get('/statusboss', function (req, res) {
 
 app.get('/login/:id', function (req, res) {
   let id = req.params.id;
-  User.getUserData(id, function(response){
+  User.login(id, function(response){
     res.send(response);
   });
 });
@@ -44,6 +44,16 @@ app.post('/forge', function (req, res) {
   var weapon1 = req.body.weapon1;
   var weapon2 = req.body.weapon2;
   User.forge(user, weapon1, weapon2, function(result) {
+    res.send(result);
+  })
+});
+
+app.post('/extract', function (req, res) {
+  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  var user = req.body.id;
+  var weapon1 = req.body.weapon1;
+  var weapon2 = req.body.weapon2;
+  User.extract(user, weapon1, weapon2, function(result) {
     res.send(result);
   })
 });

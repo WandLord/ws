@@ -2,13 +2,14 @@ const PARAMS = require('../Constants');
 const MongoDB = require('../Connectors/ConnectorMongoDB');
 const BossManager = require('./ManagerBoss');
 const Weapon = require('./ManagerWeapon');
-const { exit } = require('process');
 const collectionusers = "users";
 const collection_boss = "boss";
 
 
 function validateForge(userID, _weapon1, _weapon2, callback) {
-    module.exports.getUserData(userID, function (result) {
+
+    //TODO REFACTOR IFs
+    getUserData(userID, function (result) {
         if (_weapon1 == _weapon2) return callback(false, 0, null);
         var weapon1 = result.inventory[_weapon1];
         if (weapon1.length <= 0) return callback(false, 0, null);
@@ -21,22 +22,44 @@ function validateForge(userID, _weapon1, _weapon2, callback) {
         callback(true, price, result);
     })
 }
+function validateExtract(userID, _weapon1, _weapon2, callback) {
+    getUserData(userID, function (result) {
+        if (_weapon1 == _weapon2) return callback(false, null);
+        if (!result.inventory.hasOwnProperty(_weapon1)) return callback(false, null);
+        if (!result.inventory.hasOwnProperty(_weapon2)) return callback(false, null);
+        callback(true, result);
+    })
+}
 
 module.exports.forge = function (userID, _weaponID1, _weaponID2, callback) {
     validateForge(userID, _weaponID1, _weaponID2, function name(result, price, user) {
         if (result) {
-            user.balance -= price;
-            user.inventory[_weaponID1].forges += 1;
-            user.inventory[_weaponID2].forges += 1;
             Weapon.forgeWeapon(user.inventory[_weaponID1], user.inventory[_weaponID2], function (_newWeaponID, _newWeapon) {
-                user.inventory[_newWeaponID] = _newWeapon;
                 forgeUpdateData(user._id, _weaponID1, _weaponID2, _newWeaponID, _newWeapon, price, function (result) {
                     callback(result);
                 })
             });
         }
         else {
-            //TODO INTENTO DE FORGA SOSPECHOSO
+            //TODO INTENTO DE FORJA SOSPECHOSO
+            console.log("INTENTO DE FORJA SOSPECHOSO");
+            callback(false);
+        }
+    });
+}
+
+module.exports.extract = function (userID, _weaponID1, _weaponID2, callback) {
+    validateExtract(userID, _weaponID1, _weaponID2, function name(result, user) {
+        if (result) {
+            Weapon.extract(user.inventory[_weaponID2], function (dps) {
+                extractUpdateData(user._id, _weaponID1, _weaponID2, dps, function (result) {
+                    callback(result);
+                })
+            });
+        }
+        else {
+            //TODO INTENTO DE EXTRACCION SOSPECHOSO
+            console.log("INTENTO DE EXTRACCION SOSPECHOSO");
             callback(false);
         }
     });
@@ -62,6 +85,18 @@ function forgeUpdateData(userID, _oldWeapon1, _oldWeapon2, _newWeaponID, _newWea
     });
 }
 
+function extractUpdateData(userID, mainWeaponID, destroyWeaponID, dps, callback){
+    console.log(dps);
+    _mainWeaponDPS = "inventory." + mainWeaponID + ".dps";
+    _mainWeaponLevel = "inventory." + mainWeaponID + ".level";
+    _destroyWeapon = "inventory." + destroyWeaponID;
+    var query = { _id: userID };
+    var value = { $inc: { [_mainWeaponDPS]: dps, [_mainWeaponLevel]: 1 }, $unset: { [_destroyWeapon]: "" } };
+    MongoDB.update(collectionusers, query, value, function (result) {
+        callback(result);
+    });
+}
+
 module.exports.createUser = function (userID, userName, callback) {
     var weapon1 = Weapon.createWeapon();
     var weapon2 = Weapon.createWeapon();
@@ -71,6 +106,7 @@ module.exports.createUser = function (userID, userName, callback) {
         name: userName,
         balance: 0,
         currentWeapon: null,
+        register: new Date().toISOString(),
         inventory:
         {
             [weapon1[0]]: weapon1[1],
@@ -82,7 +118,16 @@ module.exports.createUser = function (userID, userName, callback) {
         callback(result);
     })
 }
-var getUserData = function (userID, callback) {
+
+module.exports.login = function(userID, callback){
+    getUserData(userID, function(result){
+        if(result != null){
+            UpdateLasJoin(userID);
+        }
+        callback(result);
+    });
+}
+function getUserData(userID, callback) {
     var query = { _id: MongoDB.createID(userID) };
     MongoDB.findOne(collectionusers, query, {}, function (result) {
         callback(result);
@@ -161,4 +206,11 @@ module.exports.leftBattle = function (_user, callback) {
         }
 
     });
+}
+async function UpdateLasJoin(userID){
+    var quey = { _id: MongoDB.createID(userID) };
+    var value = { $set: { lastJoin: new Date().toISOString()} };
+    MongoDB.update(collectionusers, quey, value, function (result) {
+        console.log(result);
+    })
 }
