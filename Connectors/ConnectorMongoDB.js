@@ -39,7 +39,7 @@ module.exports.insert = function (_collection, value, callback) {
     });
 }
 
-module.exports.delete = function(_collection, query, callback){
+module.exports.delete = function (_collection, query, callback) {
     db.collection(_collection).deleteOne(query, function (err, result) {
         if (err) return callback(false);
         callback(true);
@@ -48,9 +48,14 @@ module.exports.delete = function(_collection, query, callback){
 
 
 module.exports.connect = async function () {
-    await client.connect();
-    db = client.db("dragonchain");
-    console.log("Conecxion con MongoDB creada correctamente...")
+    try {
+        await client.connect();
+        db = client.db("dragonchain");
+        console.log("Conecxion con MongoDB creada correctamente...")
+    } catch (err) {
+        console.log(err);
+    }
+
 }
 
 module.exports.createID = function (id) {
