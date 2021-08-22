@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 var ObjectID = require('mongodb').ObjectId;
 
 
-const uri = "mongodb+srv://admin:admin@cluster0.k5bpd.mongodb.net/dragonchain?retryWrites=true&w=majority";
+const uri = "mongodb://teixi:ME60bHJgtFeya8v60x45@31.214.245.211:27017/forge-and-raid?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 var db = {};
 
