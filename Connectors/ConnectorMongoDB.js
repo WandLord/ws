@@ -1,8 +1,8 @@
 const { MongoClient } = require('mongodb');
 var ObjectID = require('mongodb').ObjectId;
 
-const uri = "mongodb://127.0.0.1:27017/";
-//const uri = "mongodb+srv://admin:admin@cluster0.k5bpd.mongodb.net/dragonchain?retryWrites=true&w=majority";
+//const uri = "mongodb://127.0.0.1:27017/";
+const uri = "mongodb+srv://admin:admin@cluster0.k5bpd.mongodb.net/";
 const client = new MongoClient(uri);
 var db = {};
 
@@ -50,8 +50,8 @@ module.exports.delete = function (_collection, query, callback) {
 module.exports.connect = async function () {
     console.log("Creando Conecxiona MongoDB...");
     await client.connect();
-    db = client.db("forge-and-raid");
-    //db = client.db("dragonchain");
+    //db = client.db("forge-and-raid");
+    db = client.db("dragonchain");
     console.log("Conecxion con MongoDB creada correctamente...")
 }
 

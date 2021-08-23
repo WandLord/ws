@@ -66,6 +66,14 @@ app.post('/register', function (req, res) {
     res.send(result);
   })
 });
+app.post('/equip/:id', function (req, res) {
+  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  let id = req.params.id;
+  var weapon = req.body.weapon;
+  User.equipWeapon(id, weapon, function(result) {
+    res.send(result);
+  })
+});
 
 app.use((req, res) => {
   console.log('Hello Wereld');

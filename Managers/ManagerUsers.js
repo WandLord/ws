@@ -20,7 +20,7 @@ function validateForge(userID, _weapon1, _weapon2, callback) {
         var price = global.PARAMS.FORGE_PRICE[weapon1.forges] + global.PARAMS.FORGE_PRICE[weapon2.forges];
         if (price > result.balance) return callback(false, 0, null);
         callback(true, price, result);
-    })
+    });
 }
 function validateExtract(userID, _weapon1, _weapon2, callback) {
     getUserData(userID, function (result) {
@@ -28,7 +28,15 @@ function validateExtract(userID, _weapon1, _weapon2, callback) {
         if (!result.inventory.hasOwnProperty(_weapon1)) return callback(false, null);
         if (!result.inventory.hasOwnProperty(_weapon2)) return callback(false, null);
         callback(true, result);
-    })
+    });
+}
+
+function validateEquip(userID, weapon, callback){
+    getUserData(userID, function (result) {
+        if (!result.inventory.hasOwnProperty(weapon)) return callback(false);
+        callback(true);
+    });
+
 }
 
 module.exports.forge = function (userID, _weaponID1, _weaponID2, callback) {
@@ -94,6 +102,21 @@ function extractUpdateData(userID, mainWeaponID, destroyWeaponID, dps, callback)
     var value = { $inc: { [_mainWeaponDPS]: dps, [_mainWeaponLevel]: 1 }, $unset: { [_destroyWeapon]: "" } };
     MongoDB.update(collectionusers, query, value, function (result) {
         callback(result);
+    });
+}
+
+module.exports.equipWeapon = function(id, weapon, callback){
+    validateEquip(id, weapon, function(result){
+        if(result){
+            var query = { _id: MongoDB.createID(id) };
+            var value = { $set: { currentWeapon: weapon} };
+            MongoDB.update(collectionusers, query, value, function (result) {
+                callback(result);
+            });
+        }
+        else{
+            callback(false);
+        }
     });
 }
 
