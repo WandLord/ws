@@ -38,6 +38,25 @@ app.get('/statusboss/:id', function (req, res) {
   }
 });
 
+app.get('/refreshdata/:id', function (req, res) {
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  let token = req.header('authorization');
+  let id = req.params.id;
+  let valid = Token.validateToken(token.replace("Bearer ", ""), id);
+  if (valid == false) {
+    res.send(response({}, "", 202, "Invalid Token"))
+  } else {
+    if (!Boss.isFithing(id)) {
+      User.refreshData(id, function (resp) {
+        res.send(response(resp, valid, 200, ""));
+      });
+    } else {
+      res.send(response({}, valid, 300, ""));
+      //TODO ESTA PELEANDO Y ESTA REFRESCANDO EL USER DATA
+    }
+  }
+});
+
 app.get('/joinbattle/:id', function (req, res) {
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   let id = req.params.id;
@@ -121,12 +140,12 @@ app.post('/extract/:id', function (req, res) {
 
 });
 
-app.post('/register', function (req, res) {
+app.post('/register/:id', function (req, res) {
   var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  var token_id = req.body.token_id;
+  let id = req.params.id;
   var name = req.body.name;
-  User.createUser(token_id, name, function (result) {
-    res.send(result);
+  User.createUser(id, name, function (result) {
+    res.send(response(result, "", 300, ""));
   })
 });
 

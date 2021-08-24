@@ -99,7 +99,6 @@ function forgeUpdateData(userID, _oldWeapon1, _oldWeapon2, _newWeaponID, _newWea
 }
 
 function extractUpdateData(userID, mainWeaponID, destroyWeaponID, dps, callback) {
-    console.log(dps);
     _mainWeaponDPS = "inventory." + mainWeaponID + ".dps";
     _mainWeaponLevel = "inventory." + mainWeaponID + ".level";
     _destroyWeapon = "inventory." + destroyWeaponID;
@@ -161,6 +160,19 @@ module.exports.login = function (userID, callback) {
     });
 }
 
+module.exports.refreshData = function(userID, callback){
+    getUserData(userID, function (result) {
+        if (result != null) {
+            UpdateLasJoin(userID);
+            delete result.register;
+            delete result.lastJoin;
+            callback(result);
+        } else {
+            callback(false);
+        }
+    });
+}
+
 function getUserData(userID, callback) {
     var query = { _id: MongoDB.createID(userID) };
     MongoDB.findOne(collectionusers, query, {}, function (result) {
@@ -190,7 +202,6 @@ module.exports.joinBattle = function (_user, callback) {
         if (user != false || user.fighting == true) {
             var boss = BossManager.Status();
             changeFigthingStatus(_user, true, function (figthing) {
-                console.log(figthing);
                 var userField1 = "fighting." + _user + ".dps";
                 var userField2 = "fighting." + _user + ".figth";
                 var userField3 = "fighting." + _user + ".lastJoin";
@@ -244,7 +255,6 @@ async function UpdateLasJoin(userID) {
     var quey = { _id: MongoDB.createID(userID) };
     var value = { $set: { lastJoin: new Date().toISOString() } };
     MongoDB.update(collectionusers, quey, value, function (result) {
-        console.log(result);
     })
 }
 
