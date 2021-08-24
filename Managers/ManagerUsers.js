@@ -25,7 +25,7 @@ function validateForge(userID, _weapon1, _weapon2, callback) {
 
 function validateExtract(userID, _weapon1, _weapon2, callback) {
     getUserData(userID, function (result) {
-        if (Object.keys(result.inventory).length <= 2) return callback(false, null); z
+        if (Object.keys(result.inventory).length <= 2) return callback(false, null);
         if (result.equipWeapon == result) return callback(false, null);
         if (_weapon1 == _weapon2) return callback(false, null);
         if (!result.inventory.hasOwnProperty(_weapon1)) return callback(false, null);

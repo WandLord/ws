@@ -87,6 +87,7 @@ app.post('/forge/:id', function (req, res) {
     res.send(response(false, "", 202, "Invalid Token"))
   } else {
     if (!Boss.isFithing(id)) {
+      console.log("asada");
       User.forge(id, weapon1, weapon2, function (result) {
         res.send(response(result, valid, 200, ""));
       })
