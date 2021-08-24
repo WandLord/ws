@@ -17,9 +17,7 @@ module.exports.forgeWeapon = function (_weapon1, _weapon2, callback) {
 }
 
 module.exports.extract = function (_weapon, callback) {
-    console.log(_weapon);
     incDPS = _weapon.dps * global.PARAMS.WEAPON_EXTRACTOR_INC; 
-    console.log(incDPS);
     callback(incDPS);
 }
 

@@ -13,18 +13,21 @@ module.exports.find = function (_collection, query, fields, callback) {
         callback(result);
     });
 }
+
 module.exports.findOne = function (_collection, query, fields, callback) {
     db.collection(_collection).findOne(query, fields, function (err, result) {
         if (err) return callback(false);
         callback(result);
     });
 }
+
 module.exports.findOneByFields = function (_collection, query, fields, callback) {
     db.collection(_collection).findOne(query, fields, function (err, result) {
         if (err) return callback(false);
         callback(result);
     });
 }
+
 module.exports.update = function (_collection, query, value, callback) {
     db.collection(_collection).updateOne(query, value, function (err, result) {
         if (err) return callback(false);
@@ -46,13 +49,11 @@ module.exports.delete = function (_collection, query, callback) {
     });
 }
 
-
 module.exports.connect = async function () {
-    console.log("Creando Conecxiona MongoDB...");
     await client.connect();
     //db = client.db("forge-and-raid");
     db = client.db("dragonchain");
-    console.log("Conecxion con MongoDB creada correctamente...")
+    console.log("MongoDB - OK");
 }
 
 module.exports.createID = function (id) {

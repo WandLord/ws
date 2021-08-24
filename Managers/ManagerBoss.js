@@ -6,21 +6,13 @@ const collection_boss = "boss";
 var actualBoss = {};
 var totaldps = 0;
 var updatingData = false;
+var fithing = [];
 
 module.exports.Status = function () {
-    return actualBoss;
-}
-
-module.exports.start = async function () {
-    await loadBoss();
-    while (true) {
-        await sleep(1000);
-        actualBoss.actHP -= totaldps;
-        updateBossData();
-        if (actualBoss.actHP <= 0) {
-            await battleEnd();
-        }
-    }
+    var auxBoss = actualBoss;
+    delete auxBoss.reward;
+    delete auxBoss.fighting;
+    return auxBoss;
 }
 
 async function battleEnd() {
@@ -35,8 +27,16 @@ async function battleEnd() {
     await loadBoss();
 }
 
-module.exports.joinPlayer = function (_dps) {
+module.exports.joinPlayer = function (id, _dps) {
     totaldps += _dps;
+    fithing.push(id);
+}
+module.exports.leftPlayer = function (id, _dps) {
+    totaldps -= _dps;
+    var index = fithing.indexOf(id);
+    if (index > -1) {
+        fithing.splice(index, 1);
+    }
 }
 
 async function loadBoss() {
@@ -61,8 +61,8 @@ async function loadDPS(id) {
     MongoDB.findOne(collection_boss, query, order, function (result) {
         Object.keys(result.fighting).forEach(function (key) {
             var user = result.fighting[key];
-            console.log(user);
             if (user.figth == true) {
+                fithing.push(key);
                 totaldps += user.dps;
             }
         });
@@ -80,8 +80,26 @@ async function updateBossData() {
         });
     }
 }
+
 function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
+}
+
+module.exports.start = async function () {
+    await loadBoss();
+    console.log("Boss - OK");
+    while (true) {
+        await sleep(1000);
+        actualBoss.actHP -= totaldps;
+        updateBossData();
+        if (actualBoss.actHP <= 0) {
+            await battleEnd();
+        }
+    }
+}
+
+module.exports.isFithing = function (id) {
+    return fithing.includes(id);
 }
