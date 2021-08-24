@@ -109,7 +109,7 @@ app.post('/extract/:id', function (req, res) {
     res.send(response(false, "", 202, "Invalid Token"))
   } else {
     if (!Boss.isFithing(id)) {
-      User.extract(user, weapon1, weapon2, function (result) {
+      User.extract(id, weapon1, weapon2, function (result) {
         res.send(response(result, valid, 200, ""));
       })
     } else {
