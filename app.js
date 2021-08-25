@@ -145,7 +145,7 @@ app.post('/register/:id', function (req, res) {
   let id = req.params.id;
   var name = req.body.name;
   User.createUser(id, name, function (result) {
-    res.send(response(result, "", 300, ""));
+    res.send(response(result, "", 200, ""));
   })
 });
 
