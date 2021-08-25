@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 var ObjectID = require('mongodb').ObjectId;
 
-const uri = "mongodb://127.0.0.1:27017/";
+const uri = "mongodb://root:ñRC1Gc2rMJpYPGb2ECC1rñ@31.214.245.211:27017/";
 //const uri = "mongodb+srv://admin:admin@cluster0.k5bpd.mongodb.net/";
 const client = new MongoClient(uri);
 var db = {};
