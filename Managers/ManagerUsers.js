@@ -66,7 +66,9 @@ module.exports.extract = function (userID, _weaponID1, _weaponID2, callback) {
         if (result) {
             Weapon.extract(user.inventory[_weaponID2], function (dps) {
                 extractUpdateData(user._id, _weaponID1, _weaponID2, dps, function (result) {
-                    callback(result);
+                    user.inventory[_weaponID1].level += 1;
+                    user.inventory[_weaponID1].dps += dps;
+                    callback(user.inventory[_weaponID1]);
                 })
             });
         }
