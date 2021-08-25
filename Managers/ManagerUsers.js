@@ -11,10 +11,10 @@ function validateForge(userID, _weapon1, _weapon2, callback) {
     //TODO REFACTOR IFs
     getUserData(userID, function (result) {
         if (_weapon1 == _weapon2) return callback(false, 0, null);
+        if (!result.inventory.hasOwnProperty(_weapon1)) return callback(false, 0, null);
         var weapon1 = result.inventory[_weapon1];
-        if (weapon1.length <= 0) return callback(false, 0, null);
+        if (!result.inventory.hasOwnProperty(_weapon2)) return callback(false, 0, null);
         var weapon2 = result.inventory[_weapon2];
-        if (weapon2.length <= 0) return callback(false, 0, null);
         weapon1.forges = weapon1.forges > 4 ? 4 : weapon1.forges;
         weapon2.forges = weapon2.forges > 4 ? 4 : weapon2.forges;
         var price = global.PARAMS.FORGE_PRICE[weapon1.forges] + global.PARAMS.FORGE_PRICE[weapon2.forges];
@@ -48,7 +48,7 @@ module.exports.forge = function (userID, _weaponID1, _weaponID2, callback) {
         if (result) {
             Weapon.forgeWeapon(user.inventory[_weaponID1], user.inventory[_weaponID2], function (_newWeaponID, _newWeapon) {
                 forgeUpdateData(user._id, _weaponID1, _weaponID2, _newWeaponID, _newWeapon, price, function (result) {
-                    if(result)return callback(_newWeapon);
+                    if (result) return callback(_newWeapon);
                     callback(result);
                 })
             });
@@ -127,26 +127,37 @@ module.exports.equipWeapon = function (id, weapon, callback) {
 }
 
 module.exports.createUser = function (userID, userName, callback) {
-    var weapon1 = Weapon.createWeapon();
-    var weapon2 = Weapon.createWeapon();
-    var user =
-    {
-        _id: MongoDB.createID(userID),
-        name: userName,
-        balance: 0,
-        currentWeapon: null,
-        register: new Date().toISOString(),
-        skin: global.PARAMS.PLAYER_DEFAULT_SKIN,
-        inventory:
-        {
-            [weapon1[0]]: weapon1[1],
-            [weapon2[0]]: weapon2[1],
+    var query = { $or: [{ _id: MongoDB.createID(userID) }, { name: userName }] };
+    MongoDB.findOne(collectionusers, query, {}, function (result) {
+        if (result == null) {
+            var weapon1 = Weapon.createWeapon();
+            var weapon2 = Weapon.createWeapon();
+            var user =
+            {
+                _id: MongoDB.createID(userID),
+                name: userName,
+                balance: 0,
+                currentWeapon: null,
+                register: new Date().toISOString(),
+                lastJoin: new Date().toISOString(),
+                fighting: false,
+                skin: global.PARAMS.PLAYER_DEFAULT_SKIN,
+                currentWeapon: weapon1[0],
+                inventory:
+                {
+                    [weapon1[0]]: weapon1[1],
+                    [weapon2[0]]: weapon2[1],
+
+                }
+            }
+            MongoDB.insert(collectionusers, user, function (result) {
+                callback(result);
+            })
+        } else {
+            callback(false);
 
         }
-    }
-    MongoDB.insert(collectionusers, user, function (result) {
-        callback(result);
-    })
+    });
 }
 
 module.exports.login = function (userID, callback) {
@@ -162,7 +173,7 @@ module.exports.login = function (userID, callback) {
     });
 }
 
-module.exports.refreshData = function(userID, callback){
+module.exports.refreshData = function (userID, callback) {
     getUserData(userID, function (result) {
         if (result != null) {
             UpdateLasJoin(userID);
@@ -211,7 +222,7 @@ module.exports.joinBattle = function (_user, callback) {
                 var value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
                 if (figthing) {
                     MongoDB.update(collection_boss, quey, value, function (result) {
-                        BossManager.joinPlayer(_user,user.inventory[user.currentWeapon].dps);
+                        BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
                         callback(result);
                     })
                 }
@@ -228,7 +239,7 @@ module.exports.joinBattle = function (_user, callback) {
 module.exports.leftBattle = function (_user, callback) {
     var boss = BossManager.Status();
     findUserInBoss(boss.layer, _user, function (bossUserData) {
-        bossUserData = bossUserData.fighting["611a3a10ce221181b313e83d"];
+        bossUserData = bossUserData.fighting[_user];
         if (bossUserData != false) {
             changeFigthingStatus(_user, false, function (figthing) {
                 var userField1 = "fighting." + _user + ".totalDPS";
@@ -260,7 +271,7 @@ async function UpdateLasJoin(userID) {
     })
 }
 
-module.exports.refer = function (id, code, callback){
+module.exports.refer = function (id, code, callback) {
     var quey = { _id: MongoDB.createID(id) };
     var value = { $set: { refer: code } };
     MongoDB.update(collectionusers, quey, value, function (result) {
