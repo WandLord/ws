@@ -10,21 +10,33 @@ let walletAddress = "0xDFE3d9B97Dd9a2C18e54B56a902a31fdf6B368B7";
 let minABI = [
   // balanceOf
   {
-    "constant":true,
-    "inputs":[{"name":"_owner","type":"address"}],
-    "name":"balanceOf",
-    "outputs":[{"name":"balance","type":"uint256"}],
-    "type":"function"
+    "constant": true,
+    "inputs": [{ "name": "_owner", "type": "address" }],
+    "name": "balanceOf",
+    "outputs": [{ "name": "balance", "type": "uint256" }],
+    "type": "function"
   }
 ];
 
-const contract = new web3.eth.Contract(minABI, tokenAddress);
-  async function getBalance() {
-    const result = await contract.methods.balanceOf(walletAddress).call(); // 29803630997051883414242659
-    const format = web3.utils.fromWei(result); // 29803630.997051883414242659
-    var stringValue = result.toString();
-    var x = stringValue.substring(0,  stringValue.length-8) + "." + stringValue.substring(stringValue.length-8)
-    console.log(x);
-  }
-  
-  getBalance();
+//const contract = new web3.eth.Contract(minABI, tokenAddress);
+async function getBalance() {
+  const result = await contract.methods.balanceOf(walletAddress).call(); // 29803630997051883414242659
+  const format = web3.utils.fromWei(result); // 29803630.997051883414242659
+  var stringValue = result.toString();
+  var x = stringValue.substring(0, stringValue.length - 8) + "." + stringValue.substring(stringValue.length - 8)
+  console.log(x);
+}
+async function tst() {
+  let decimals = web3.utils.toBN(8);
+  let amount = web3.utils.toBN(100);
+  let contract = new web3.eth.Contract(minABI, tokenAddress);
+  // calculate ERC20 token amount
+  let value = 10;//amount.times(web3.utils.toBN(10).pow(decimals));
+  // call transfer function
+  contract.methods.transfer(walletAddress, value, (error, txHash) => {
+    // it returns tx hash because sending tx
+    console.log(txHash);
+  });
+}
+tst();
+  //getBalance();

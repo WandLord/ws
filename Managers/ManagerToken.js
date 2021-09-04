@@ -16,6 +16,7 @@ module.exports.createToken = function (id) {
 
 module.exports.validateToken = function (token, id) {
     try {
+        token = token.replace("Bearer ", "");
         const decoded = jwt.verify(token, global.PARAMS.TOKEN_KEY);
         if (decoded.id == id) return module.exports.createToken(id);
     } catch (err) {
