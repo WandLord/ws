@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 
 
-module.exports.generateID = function (peper) {
+module.exports.generateId = function (peper) {
     var sha1 = crypto.createHash('sha1');
     var strObj = peper + crypto.randomBytes(16);
 

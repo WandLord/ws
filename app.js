@@ -1,217 +1,115 @@
 const express = require("express");
-const logger = require('./Connectors/ConnectorELK');
-const Boss = require('./Managers/ManagerBoss');
-const User = require('./Managers/ManagerUsers');
+const logger = require('./Connectors/LoggerConnector');
+const Boss = require('./Managers/BossManager');
+const User = require('./Managers/UserManager');
 const PARAMS = require('./Constants');
-const MongoDB = require('./Connectors/ConnectorMongoDB');
-const Token = require('./Managers/ManagerToken');
+const MongoDB = require('./Connectors/MongoConnector');
+const Token = require('./Managers/TokenManager');
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
 const app = express();
+app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/login/:id', function (req, res, next) {
+app.get('/login/:id', async function (req, res) {
   let id = req.params.id;
-  User.login(id, function (resp) {
-    if (resp == false) {
-      res.json(response({}, "", 201, "Invalid Login"))
-    }else{
-      res.json(response(resp, Token.createToken(id), 200, ""));
-    }
-  });
+  const user = await User.login(id);
+  if (!user) {
+    res.json(response({}, "", 201, "Invalid Login"))
+  } else {
+    res.json(response(user, Token.createToken(id), 200, ""));
+  }
 });
 
-app.get('/statusboss/:id', function (req, res) {
+async function isValidToken(req, res, next) {
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   let token = req.header('authorization');
-  let id = req.params.id;
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response({}, "", 202, "Invalid Token"))
-  } else {
-    if (Boss.isFithing(id)) {
-      res.json(response(Boss.Status(), valid, 200, ""));
-    } else {
-      res.json(response(Boss.Status(), valid, 300, "No esta en pelea pero mira el estado del boss."));
-      //TODO No esta en pelea pero mira el estado del boss
+  res.locals.validToken = Token.validateToken(token, req.params.id);
+  return res.locals.validToken ? next() : res.json(response({}, "", 202, "Invalid Token"));
+}
+
+function checkIsFighting(req, res, next) {
+  Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, 300, "No esta en pelea pero llega la request."));
+}
+
+function checkIsNotFighting(req, res, next) {
+  !Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, 300, "Esta en pelea pero llega la request."));
+}
+
+app.get('/statusboss/:id', isValidToken, checkIsFighting, function (req, res) {
+  res.json(response(Boss.Status(), res.locals.validToken, 200, ""));
+});
+
+app.get('/refreshdata/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+  const refreshedUser = await User.refreshData(req.params.id);
+  res.json(response(refreshedUser, res.locals.validToken, 200, ""));
+});
+
+app.get('/joinbattle/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+  const userHasJoinedBattle = await User.joinBattle(req.params.id);
+  res.json(response(userHasJoinedBattle, res.locals.validToken, 200, ""));
+});
+
+app.get('/leftBattle/:id', isValidToken, checkIsFighting, async function (req, res) {
+    const userHasLeftBattle = await User.leftBattle(req.params.id);
+    res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
+});
+
+app.post('/forge/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+  var mainWeaponId = req.body.mainWeapon;
+  var secondaryWeaponId = req.body.secondaryWeapon;
+  
+  const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
+    if (newWeapon) {
+      res.json(response(newWeapon, res.locals.validToken, 200, ""));
     }
+    else {
+      res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE FORJA SOSPECHOSO"));
+    }  
+});
+
+app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+  var destWeapon = req.body.destWeapon;
+  var sourceWeapon = req.body.sourceWeapon;
+
+  const newWeapon = await User.extract(req.params.id, destWeapon, sourceWeapon);
+  if (newWeapon) {
+    res.json(response(newWeapon, res.locals.validToken, 200, ""));
+  } else {
+    res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE EXTRACT SOSPECHOSO"));
   }
 });
 
-app.get('/refreshdata/:id', function (req, res) {
-  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let token = req.header('authorization');
-  let id = req.params.id;
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response({}, "", 202, "Invalid Token"))
-  } else {
-    if (!Boss.isFithing(id)) {
-      User.refreshData(id, function (resp) {
-        res.json(response(resp, valid, 200, ""));
-      });
-    } else {
-      res.json(response({}, valid, 300, "ESTA PELEANDO Y ESTA REFRESCANDO EL USER DATA"));
-      //TODO ESTA PELEANDO Y ESTA REFRESCANDO EL USER DATA
-    }
-  }
-});
-
-app.get('/joinbattle/:id', function (req, res) {
-  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
-  } else {
-    if (!Boss.isFithing(id)) {
-      User.joinBattle(id, function (result) {
-        res.json(response(result, valid, 200, ""));
-      });
-    } else {
-      res.json(response(false, valid, 300, "ESTA EN PELA PERO QUIERE VOLVER A ENTRAR"));
-      //TODO ESTA EN PELA PERO QUIERE VOLVER A ENTRAR
-    }
-  }
-});
-
-app.get('/leftBattle/:id', function (req, res) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
-  } else {
-    if (Boss.isFithing(id)) {
-      User.leftBattle(id, function (result) {
-        res.json(response(result, valid, 200, ""));
-      });
-    } else {
-      res.json(response(false, valid, 300, "SALIR DE LA PELEA AUNQUE NO ESTE EN PELEA"));
-      //TODO SALIR DE LA PELEA AUNQUE NO ESTE EN PELEA
-    }
-  }
-});
-
-app.post('/forge/:id', function (req, res) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
-  var weapon1 = req.body.weapon1;
-  var weapon2 = req.body.weapon2;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
-  } else {
-    if (!Boss.isFithing(id)) {
-      User.forge(id, weapon1, weapon2, function (result) {
-        if(result){
-          res.json(response(result, valid, 200, ""));
-        }
-        else{
-          res.json(response(result, valid, 300, "INTENTO DE FORJA SOSPECHOSO"));
-        }
-      })
-    } else {
-      res.json(response(result, valid, 300, "FORGAR ARMA ESTANDO EN PELEA"));
-      //TODO FORGAR ARMA ESTANDO EN PELEA
-    }
-  }
-
-});
-
-app.post('/extract/:id', function (req, res) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
-  var weapon1 = req.body.weapon1;
-  var weapon2 = req.body.weapon2;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
-  } else {
-    if (!Boss.isFithing(id)) {
-      User.extract(id, weapon1, weapon2, function (result) {
-        res.json(response(result, valid, 200, ""));
-      })
-    } else {
-      res.json(response(result, valid, 300, "EXTRAER ARMA ESTANDO EN PELEA"));
-      //TODO EXTRAER ARMA ESTANDO EN PELEA
-    }
-  }
-
-});
 app.options('/register/:id', cors());
-app.use(bodyParser.json());
-app.post('/register/:id',cors(), function (req, res, next) {
-  console.log("Reg");
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
-  console.log(req.body);
+
+app.post('/register/:id', cors(), async function (req, res) {
   var name = req.body.name;
-  User.createUser(id, name, function (result) {
-    if(result){
-      res.json(response(result, "", 200, ""));
-
-    }
-    else{
-      res.json(response(result, "", 203, "USER EXIST O USER NAME EXIST"));
-      //TODO USER EXIST O USER NAME EXIST
-
-    }
-  })
+  const isUserCreated = await User.createUser(req.params.id, name);
+  if (isUserCreated) {
+    res.json(response(isUserCreated, "", 200, ""));
+  } else {
+    res.json(response(isUserCreated, "", 203, "USER EXIST O USER NAME EXIST"));
+    //TODO USER EXIST O USER NAME EXIST
+  }
 });
 
-app.post('/equip/:id', function (req, res) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
+app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var weapon = req.body.weapon;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
+  
+  const isEquippedWeapon = await User.equipWeapon(req.params.id, weapon);
+  if (isEquippedWeapon) {
+      res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
   } else {
-    if (!Boss.isFithing(id)) {
-      User.equipWeapon(id, weapon, function (result) {
-        if(result){
-          res.json(response(result, valid, 200, ""));
-        }
-        else{
-          //TODO EQUIPAR ARMA QUE NO ESTA EN EL INVENTARIO
-          res.json(response(result, valid, 300, "Intento de equipar un arma que no tiene"));
-
-        }
-      })
-    } else {
-      res.json(response(result, valid, 300, "Esta luchando e intenta equipar algo."));
-      //TODO EQUIPAR ARMA ESTANDO EN PELEA
-    }
+    //TODO EQUIPAR ARMA QUE NO ESTA EN EL INVENTARIO
+    res.json(response(isEquippedWeapon, res.locals.validToken, 300, "Intento de equipar un arma que no tiene"));
   }
-
 });
 
-app.post('/refer/:id', function (req, res) {
-  var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  let id = req.params.id;
+app.post('/refer/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var code = req.body.code;
-  let token = req.header('authorization');
-  let valid = Token.validateToken(token, id);
-  if (valid == false) {
-    res.json(response(false, "", 202, "Invalid Token"))
-  } else {
-    if (!Boss.isFithing(id)) {
-      User.refer(id, code, function (result) {
-        res.json(response(result, valid, 200, ""));
-      })
-    } else {
-      res.json(response(false, valid, 300, "HACER REFERIDO EN PELEA"));
-      //TODO HACER REFERIDO EN PELEA
-    }
-  }
-
+  const isReferred = await User.refer(req.params.id, code);
+  res.json(response(isReferred, res.locals.validToken, 200, ""));
 });
 
 app.use((req, res) => {
@@ -222,8 +120,13 @@ app.use((req, res) => {
 
 app.listen(3000, async function () {
   console.log("El servidor está inicializado en el puerto 3000");
-  await MongoDB.connect();
-  Boss.start();
+  try {
+    await MongoDB.connect();
+    await Boss.start();
+  } catch (e) {
+    console.log('Error: ', e);
+    process.exit(1);
+  }
 });
 
 function response(_data, _token, _status, _error) {
