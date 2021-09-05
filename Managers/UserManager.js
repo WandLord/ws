@@ -2,13 +2,13 @@ const PARAMS = require('../Constants');
 const MongoDB = require('../Connectors/MongoConnector');
 const BossManager = require('./BossManager');
 const Weapon = require('./WeaponManager');
+const Currensy = require('./CurrencyManager');
+
 const collection_users = "users";
 const collection_boss = "boss";
 
-
 async function validateForge(userId, mainWeaponId, secondaryWeaponId) {
 
-    //TODO REFACTOR IFs
     const userData = await getUserData(userId);
     let price = 0;
 
@@ -18,7 +18,7 @@ async function validateForge(userId, mainWeaponId, secondaryWeaponId) {
         userData
     }
 
-    const hasEnoughBalance = () =>  {
+    const hasEnoughBalance = () => {
         const mainWeapon = userData.inventory[mainWeaponId];
         const secondaryWeapon = userData.inventory[secondaryWeaponId];
         mainWeapon.forges = mainWeapon.forges > 4 ? 4 : mainWeapon.forges;
@@ -28,9 +28,9 @@ async function validateForge(userId, mainWeaponId, secondaryWeaponId) {
     }
 
     if (
-        mainWeaponId == secondaryWeaponId || 
+        mainWeaponId == secondaryWeaponId ||
         !userData.inventory.hasOwnProperty(mainWeaponId) ||
-        !userData.inventory.hasOwnProperty(secondaryWeaponId) || 
+        !userData.inventory.hasOwnProperty(secondaryWeaponId) ||
         hasEnoughBalance()
     ) {
         return result;
@@ -51,7 +51,7 @@ async function validateExtract(userId, destWeaponId, sourceWeaponId) {
     if (
         Object.keys(userData.inventory).length <= 2 ||
         userData.equipWeapon == sourceWeaponId ||
-        destWeaponId == sourceWeaponId || 
+        destWeaponId == sourceWeaponId ||
         !userData.inventory.hasOwnProperty(destWeaponId) ||
         !(userData.inventory[destWeaponId].level < global.PARAMS.WEAPON_MAX_LEVEL) ||
         !userData.inventory.hasOwnProperty(sourceWeaponId)
@@ -71,6 +71,7 @@ async function validateEquip(userId, weapon) {
 module.exports.forge = async function (userId, mainWeaponId, secondayWeaponId) {
     const result = await validateForge(userId, mainWeaponId, secondayWeaponId);
     if (result.isValid) {
+        await Currensy.spend(userId, result.price, "forge", result.userData.refer);
         const forgedWeapon = Weapon.forgeWeapon(result.userData.inventory[mainWeaponId], result.userData.inventory[secondayWeaponId]);
         const isNewWeaponForged = await forgeUpdateData(result.userData._id, mainWeaponId, secondayWeaponId, forgedWeapon.weaponId, forgedWeapon.newWeapon, result.price);
         return isNewWeaponForged ? forgedWeapon.newWeapon : false;
@@ -132,28 +133,30 @@ module.exports.equipWeapon = async function (id, weapon) {
     return false;
 }
 
-module.exports.createUser = async function (userId, userName) {
-    const query = { $or: [{ _id: MongoDB.createId(userId) }, { name: userName }] };
-    const user = await MongoDB.findOne(collection_users, query, {});
-    if (user) return false;
-
+module.exports.createUser = async function (userId) {
     const mainWeapon = Weapon.createWeapon();
     const secondaryWeapon = Weapon.createWeapon();
+    const internalId = MongoDB.createNewId();
     const newUser = {
-        _id: MongoDB.createId(userId),
-        name: userName,
+        _id: internalId,
+        name: internalId,
         balance: 0,
         register: new Date().toISOString(),
         lastJoin: new Date().toISOString(),
         fighting: false,
         skin: global.PARAMS.PLAYER_DEFAULT_SKIN,
-        currentWeapon: weapon1[0],
+        currentWeapon: mainWeapon[0],
+        refer: global.PARAMS.DEFAULT_REFER,
         inventory: {
             [mainWeapon[0]]: mainWeapon[1],
             [secondaryWeapon[0]]: secondaryWeapon[1],
+        },
+        accounts: {
+            google: userId
         }
-    }
-    return await MongoDB.insert(collection_users, newUser);
+    };
+    await MongoDB.insert(collection_users, newUser);
+    return newUser;
 }
 
 async function getUser(userId) {
@@ -163,6 +166,7 @@ async function getUser(userId) {
     await UpdateLastJoin(userId);
     delete user.register;
     delete user.lastJoin;
+    delete user.accounts;
     return user;
 }
 
@@ -175,8 +179,23 @@ module.exports.refreshData = async function (userId) {
 }
 
 async function getUserData(userId) {
-    var query = { _id: MongoDB.createId(userId) };
-    return await MongoDB.findOne(collection_users, query);
+    const query = { _id: MongoDB.createId(userId) };
+    const response = await MongoDB.findOne(collection_users, query,{});
+    return response;
+}
+
+async function getUserDataByName(userName) {
+    const query = { name: userName };
+    const response = await MongoDB.findOne(collection_users, query,{});
+    return response;
+}
+
+module.exports.getUserDataByOauth = async function (userId) {
+    const field = "accounts.google"
+    const query = { [field]: userId };
+    const user = await MongoDB.findOne(collection_users, query);
+    if(!user) return false;
+    return user;
 }
 
 async function findUserInBoss(_layer, userId) {
@@ -207,7 +226,7 @@ module.exports.joinBattle = async function (_user) {
     const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
     if (statusChanged) {
         const isUpdated = await MongoDB.update(collection_boss, query, value);
-         if (isUpdated) BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
+        if (isUpdated) BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
         return isUpdated;
     }
     return false;
@@ -217,7 +236,7 @@ module.exports.leftBattle = async function (_user) {
     var boss = BossManager.Status();
     let bossUserData = await findUserInBoss(boss.layer, _user);
     if (!bossUserData) return false;
-    
+
     bossUserData = bossUserData.fighting[_user];
     if (!bossUserData) return false;
     const statusChanged = await changeFightingStatus(_user, false);
@@ -240,8 +259,19 @@ async function UpdateLastJoin(userId) {
     await MongoDB.update(collection_users, quey, value);
 }
 
-module.exports.refer = async function (id, code) {
-    var quey = { _id: MongoDB.createId(id) };
-    var value = { $set: { refer: code } };
+module.exports.refer = async function (userId, code) {
+    const user = await getUserData(userId);
+    const userRefer = await getUserDataByName(code);
+    if(!user || user.name == code || !userRefer) return false; 
+    const quey = { _id: MongoDB.createId(userId) };
+    const value = { $set: { refer: code } };
+    return await MongoDB.update(collection_users, quey, value);
+}
+
+module.exports.changeNickname = async function (userId, nickname) {
+    const user = await getUserData(userId);
+    if(!user || user.nickname != user._id) return false; 
+    const quey = { _id: MongoDB.createId(userId) };
+    const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);
 }

@@ -7,6 +7,7 @@ const MongoDB = require('./Connectors/MongoConnector');
 const Token = require('./Managers/TokenManager');
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const Oauth = require('./Managers/OauthManager');
 
 const app = express();
 app.use(bodyParser.json());
@@ -52,21 +53,21 @@ app.get('/joinbattle/:id', isValidToken, checkIsNotFighting, async function (req
 });
 
 app.get('/leftBattle/:id', isValidToken, checkIsFighting, async function (req, res) {
-    const userHasLeftBattle = await User.leftBattle(req.params.id);
-    res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
+  const userHasLeftBattle = await User.leftBattle(req.params.id);
+  res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
 });
 
 app.post('/forge/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var mainWeaponId = req.body.mainWeapon;
   var secondaryWeaponId = req.body.secondaryWeapon;
-  
+
   const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
-    if (newWeapon) {
-      res.json(response(newWeapon, res.locals.validToken, 200, ""));
-    }
-    else {
-      res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE FORJA SOSPECHOSO"));
-    }  
+  if (newWeapon) {
+    res.json(response(newWeapon, res.locals.validToken, 200, ""));
+  }
+  else {
+    res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE FORJA SOSPECHOSO"));
+  }
 });
 
 app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, res) {
@@ -81,25 +82,12 @@ app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, 
   }
 });
 
-app.options('/register/:id', cors());
-
-app.post('/register/:id', cors(), async function (req, res) {
-  var name = req.body.name;
-  const isUserCreated = await User.createUser(req.params.id, name);
-  if (isUserCreated) {
-    res.json(response(isUserCreated, "", 200, ""));
-  } else {
-    res.json(response(isUserCreated, "", 203, "USER EXIST O USER NAME EXIST"));
-    //TODO USER EXIST O USER NAME EXIST
-  }
-});
-
 app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var weapon = req.body.weapon;
-  
+
   const isEquippedWeapon = await User.equipWeapon(req.params.id, weapon);
   if (isEquippedWeapon) {
-      res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
+    res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
   } else {
     //TODO EQUIPAR ARMA QUE NO ESTA EN EL INVENTARIO
     res.json(response(isEquippedWeapon, res.locals.validToken, 300, "Intento de equipar un arma que no tiene"));
@@ -107,16 +95,37 @@ app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, re
 });
 
 app.post('/refer/:id', isValidToken, checkIsNotFighting, async function (req, res) {
-  var code = req.body.code;
-  const isReferred = await User.refer(req.params.id, code);
-  res.json(response(isReferred, res.locals.validToken, 200, ""));
+  res.json(response(await User.refer(req.params.id, req.body.code), res.locals.validToken, 200, ""));
+});
+
+app.get('/auth', async function (req, res) {
+  const { code } = req.query;
+  const options = {
+    code,
+  };
+  await Oauth.validateOauth(options, req.query.id);
+  res.status(200).json("OK");
+});
+
+app.get('/authUrl/:id', async function (req, res) {
+  res.status(200).json(await Oauth.generateUrl(req.params.id));
+});
+
+app.get('/checkAuth/:id', async function (req, res) {
+  res.json(response(await Oauth.checkAuth(req.params.id), Token.createToken(req.params.id), 200, ""));
+});
+
+app.post('/nickname/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+  res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
 });
 
 app.use((req, res) => {
   console.log('Hello Wereld');
   //TODO Intentando llamar a un servicio inexistente
   res.status(404).send({ message: 'Not Found', path: req.originalUrl })
-})
+});
+
+
 
 app.listen(3000, async function () {
   console.log("El servidor está inicializado en el puerto 3000");

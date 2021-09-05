@@ -2,7 +2,6 @@ const { MongoClient } = require('mongodb');
 var ObjectId = require('mongodb').ObjectId;
 
 const uri = "mongodb://root:ñRC1Gc2rMJpYPGb2ECC1rñ@31.214.245.211:27017/";
-//const uri = "mongodb+srv://admin:admin@cluster0.k5bpd.mongodb.net/";
 const client = new MongoClient(uri);
 var db = {};
 
@@ -36,8 +35,7 @@ module.exports.delete = function (_collection, query, callback) {
 
 module.exports.connect = async function () {
     await client.connect();
-    db = client.db("forge-and-raid");
-    //db = client.db("dragonchain");
+    db = client.db("wandlord-db");
     console.log("MongoDB - OK");
 }
 
@@ -45,6 +43,15 @@ module.exports.createId = function (id) {
     var response = null;
     try {
         response = new ObjectId(id);
+    } catch (err) {
+        response = false;
+    }
+    return response;
+}
+module.exports.createNewId = function () {
+    var response = null;
+    try {
+        response = new ObjectId();
     } catch (err) {
         response = false;
     }
