@@ -16,7 +16,7 @@ const client = new Oauth.AuthorizationCode({
 });
 module.exports.generateUrl = async function (id) {
     const authorizationUri = client.authorizeURL({
-        redirect_uri: 'http://localhost:3000/auth?id=' + id,
+        redirect_uri: 'http://31.214.245.211:3000/auth?id=' + id,
         scope: 'email',
     });
     userPool.push({ id, status: "waiting" });
