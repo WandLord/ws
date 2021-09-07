@@ -3,6 +3,7 @@ const MongoDB = require('../Connectors/MongoConnector');
 const BossManager = require('./BossManager');
 const Weapon = require('./WeaponManager');
 const Currensy = require('./CurrencyManager');
+const Crypto = require('./CryptoManager');
 
 const collection_users = "users";
 const collection_boss = "boss";
@@ -139,7 +140,7 @@ module.exports.createUser = async function (userId) {
     const internalId = MongoDB.createNewId();
     const newUser = {
         _id: internalId,
-        name: internalId,
+        name: Crypto.ofuscateId(internalId),
         balance: 0,
         register: new Date().toISOString(),
         lastJoin: new Date().toISOString(),
@@ -270,7 +271,7 @@ module.exports.refer = async function (userId, code) {
 
 module.exports.changeNickname = async function (userId, nickname) {
     const user = await getUserData(userId);
-    if(!user || user.nickname != user._id) return false; 
+    if(!user || user.nickname != Crypto.ofuscateId(user._id)) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);

@@ -24,7 +24,7 @@ module.exports.generateUrl = async function (id) {
 }
 
 module.exports.validateOauth = async function (options, id) {
-    options.redirect_uri = 'http://localhost:3000/auth?id=' + id;
+    options.redirect_uri = 'http://31.214.245.211:3000/auth?id=' + id;
     options.scope = 'email';
     const authToken = await client.getToken(options);
     const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;

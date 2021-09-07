@@ -43,5 +43,5 @@ function getRarity(dps){
     for (var k in global.PARAMS.WEAPON_RARITY){
         if(dps < k) return global.PARAMS.WEAPON_RARITY[k];
     }
-
+    return global.PARAMS.WEAPON_RARITY[10000];
 }
