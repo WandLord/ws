@@ -1,5 +1,3 @@
-const express = require("express");
-const BossManager = express();
 const MongoDB = require('../Connectors/MongoConnector');
 const collection_boss = "boss";
 
@@ -20,7 +18,6 @@ async function battleEnd() {
     totaldps = 0;
     var query = { layer: actualBoss.layer };
     var order = {};
-    var auxBoss;
     MongoDB.findOne(collection_boss, query, order, function (result) {
         auxBoss = result;
     });

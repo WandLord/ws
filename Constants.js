@@ -26,5 +26,6 @@ global.PARAMS =
     "TOKEN_TO_BURN": 40,
     "TOKEN_TO_BOSS": 55,
     "TOKEN_TO_US": 5,
-    "TOKEN_DECIMALS": 8
+    "TOKEN_DECIMALS": 8,
+    "SESSION_DURATION": 15 * 60 * 1000
 };

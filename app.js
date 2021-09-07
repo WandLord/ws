@@ -2,26 +2,38 @@ const express = require("express");
 const logger = require('./Connectors/LoggerConnector');
 const Boss = require('./Managers/BossManager');
 const User = require('./Managers/UserManager');
-const PARAMS = require('./Constants');
+const Crypto = require('./Managers/CryptoManager');
 const MongoDB = require('./Connectors/MongoConnector');
 const Token = require('./Managers/TokenManager');
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const Oauth = require('./Managers/OauthManager');
+const sessions = require('express-session');
+const dotenv = require('dotenv');
 
 const app = express();
+dotenv.config();
+
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/login/:id', async function (req, res) {
-  let id = req.params.id;
-  const user = await User.login(id);
-  if (!user) {
-    res.json(response({}, "", 201, "Invalid Login"))
-  } else {
-    res.json(response(user, Token.createToken(id), 200, ""));
+app.use(sessions({
+  cookie: {
+    maxAge: global.PARAMS.SESSION_DURATION,
+  },
+  proxy: true,
+  resave: false,
+  saveUninitialized: true,
+  secret: process.env.SESSION_SECRET || '',
+}));
+
+function checkUserSession(req, res, next) {
+  if (req.session && req.session.userId) {
+    return next();
   }
-});
+
+  return res.status(401).send({ message: 'no session user' });
+}
 
 async function isValidToken(req, res, next) {
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -37,6 +49,16 @@ function checkIsFighting(req, res, next) {
 function checkIsNotFighting(req, res, next) {
   !Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, 300, "Esta en pelea pero llega la request."));
 }
+
+app.get('/login/:id', async function (req, res) {
+  let id = req.params.id;
+  const user = await User.login(id);
+  if (!user) {
+    res.json(response({}, "", 201, "Invalid Login"))
+  } else {
+    res.json(response(user, Token.createToken(id), 200, ""));
+  }
+});
 
 app.get('/statusboss/:id', isValidToken, checkIsFighting, function (req, res) {
   res.json(response(Boss.Status(), res.locals.validToken, 200, ""));
@@ -103,7 +125,10 @@ app.get('/auth', async function (req, res) {
   const options = {
     code,
   };
+
   await Oauth.validateOauth(options, req.query.id);
+  session = req.session;
+  session.userId = Crypto.ofuscateId(req.query.id);
   res.status(200).json("OK");
 });
 
@@ -125,7 +150,10 @@ app.use((req, res) => {
   res.status(404).send({ message: 'Not Found', path: req.originalUrl })
 });
 
-
+app.get('/logout', function (req, res) {
+  req.session.destroy();
+  res.redirect('/');
+});
 
 app.listen(3000, async function () {
   console.log("El servidor está inicializado en el puerto 3000");

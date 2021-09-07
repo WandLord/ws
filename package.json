@@ -1,0 +1,42 @@
+{
+  "name": "wandlord",
+  "version": "0.0.1",
+  "description": "This is the backend of the WandLord project",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^10.0.0",
+    "elasticsearch": "^16.7.2",
+    "express-session": "^1.17.2",
+    "get-json": "^1.0.1",
+    "got": "^11.8.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.1.0",
+    "mongoose": "^5.13.7",
+    "simple-oauth2": "^4.2.0",
+    "web3": "^1.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm test",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WandLord/ws.git"
+  },
+  "keywords": [
+    "nft",
+    "blockchain",
+    "game",
+    "prize"
+  ],
+  "author": "WandLord",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WandLord/ws/issues"
+  },
+  "homepage": "https://github.com/WandLord/ws#readme"
+}

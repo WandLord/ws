@@ -1,12 +1,18 @@
 const Oauth = require('simple-oauth2');
 const User = require('./UserManager');
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const Got = require('got');
+
+const dotenv = require('dotenv');
+dotenv.config();
+
+let redirectUri = process.env.ENVIRONMENT === 'development' ? 'localhost' : process.env.PRODUCTION_IP;
+redirectUri += `:${process.env.LISTEN || '3000'}`;
 
 const userPool = [];
 const client = new Oauth.AuthorizationCode({
     client: {
-        id: '511994452392-rm44tkcm5vrurntcnr6p9pfhbc7pnpvi.apps.googleusercontent.com',
-        secret: '7DXBG51d76qbGF0ql5B8jxro'
+        id: process.env.OAUTH_ID,
+        secret: process.env.OAUTH_SECRET
     },
     auth: {
         tokenHost: 'https://accounts.google.com/o/oauth2/',
@@ -16,7 +22,7 @@ const client = new Oauth.AuthorizationCode({
 });
 module.exports.generateUrl = async function (id) {
     const authorizationUri = client.authorizeURL({
-        redirect_uri: 'http://31.214.245.211:3000/auth?id=' + id,
+        redirect_uri: `http://${redirectUri}/auth?id=${id}`,
         scope: 'email',
     });
     userPool.push({ id, status: "waiting" });
@@ -24,30 +30,30 @@ module.exports.generateUrl = async function (id) {
 }
 
 module.exports.validateOauth = async function (options, id) {
-    options.redirect_uri = 'http://31.214.245.211:3000/auth?id=' + id;
+    options.redirect_uri = `http://${redirectUri}/auth?id=${id}`,
     options.scope = 'email';
     const authToken = await client.getToken(options);
     const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;
-    const response = await fetch(urlUserInfo);
-    const data = await response.json();
+    const data = (await Got(urlUserInfo)).body;
     const auxId = userPool.findIndex(item => item.id == id);
     userPool[auxId].status = "OK";
-    userPool[auxId].user = data.id;
-    return;
+    userPool[auxId].id = data.id;
+
+    let user = await User.getUserDataByOauth(data.id);
+    if (!user) {
+        user = await User.createUser(data.id);
+    }
+    delete user.register;
+    delete user.lastJoin;
+    delete user.accounts;
+    userPool[auxId].data = user;
+    
+    return user;
 }
 
 module.exports.checkAuth = async function (id) {
     userAuth = userPool.find(item => item.id == id);
     if (!userAuth) return "dont find";
-    if (userAuth.status == "OK") {
-        var user = await User.getUserDataByOauth(userAuth.user);
-        if (!user) {
-            user =  await User.createUser(userAuth.user);
-        }
-        delete user.register;
-        delete user.lastJoin;
-        delete user.accounts;
-        return user;
-    }
+    if (userAuth.status === 'OK') return userAuth.data;
     return userAuth.status;
 }

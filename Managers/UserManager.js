@@ -140,7 +140,7 @@ module.exports.createUser = async function (userId) {
     const internalId = MongoDB.createNewId();
     const newUser = {
         _id: internalId,
-        name: Crypto.ofuscateId(internalId),
+        name: Crypto.ofuscateId(internalId.toString()),
         balance: 0,
         register: new Date().toISOString(),
         lastJoin: new Date().toISOString(),

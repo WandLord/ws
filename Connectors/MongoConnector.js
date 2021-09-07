@@ -1,7 +1,9 @@
 const { MongoClient } = require('mongodb');
-var ObjectId = require('mongodb').ObjectId;
+const ObjectId = require('mongodb').ObjectId;
+const dotenv = require('dotenv');
+dotenv.config();
 
-const uri = "mongodb://root:ñRC1Gc2rMJpYPGb2ECC1rñ@31.214.245.211:27017/";
+const uri = process.env.DATABASE_URI;
 const client = new MongoClient(uri);
 var db = {};
 
@@ -35,7 +37,7 @@ module.exports.delete = function (_collection, query, callback) {
 
 module.exports.connect = async function () {
     await client.connect();
-    db = client.db("wandlord-db");
+    db = client.db(process.env.DATABASE_CLIENT);
     console.log("MongoDB - OK");
 }
 
