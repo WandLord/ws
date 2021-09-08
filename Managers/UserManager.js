@@ -271,7 +271,7 @@ module.exports.refer = async function (userId, code) {
 
 module.exports.changeNickname = async function (userId, nickname) {
     const user = await getUserData(userId);
-    if(!user || user.nickname != Crypto.ofuscateId(user._id)) return false; 
+    //if(!user || user.nickname != Crypto.ofuscateId(user._id)) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);
