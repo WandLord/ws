@@ -138,7 +138,8 @@ app.get('/authUrl/:id', async function (req, res) {
 });
 
 app.get('/checkAuth/:id', async function (req, res) {
-  res.json(response(await Oauth.checkAuth(req.params.id), Token.createToken(req.params.id), 200, ""));
+  const user = await Oauth.checkAuth(req.params.id);
+  res.json(response(user, Token.createToken(user._id), 200, ""));
 });
 
 app.post('/nickname/:id', isValidToken, checkIsNotFighting, async function (req, res) {
