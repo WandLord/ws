@@ -23,6 +23,7 @@ const client = new Oauth.AuthorizationCode({
 module.exports.generateUrl = async function (id) {
     const authorizationUri = client.authorizeURL({
         redirect_uri: `http://${redirectUri}/auth?id=${id}`,
+        state: id,
         scope: 'email',
     });
     userPool.push({ id, status: "waiting" });

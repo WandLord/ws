@@ -121,14 +121,14 @@ app.post('/refer/:id', isValidToken, checkIsNotFighting, async function (req, re
 });
 
 app.get('/auth', async function (req, res) {
-  const { code } = req.query;
+  const { code, id } = req.query;
   const options = {
     code,
   };
 
-  await Oauth.validateOauth(options, req.query.id);
+  await Oauth.validateOauth(options, id);
   session = req.session;
-  session.userId = Crypto.ofuscateId(req.query.id);
+  session.userId = Crypto.ofuscateId(id);
   res.status(200).json("OK");
 });
 
