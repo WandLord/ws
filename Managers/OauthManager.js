@@ -22,7 +22,7 @@ const client = new Oauth.AuthorizationCode({
 });
 module.exports.generateUrl = async function (id) {
     const authorizationUri = client.authorizeURL({
-        redirect_uri: `http://${redirectUri}/auth?id=${id}`,
+        redirect_uri: `http://${redirectUri}/auth`,
         state: id,
         scope: 'email',
     });
@@ -31,15 +31,14 @@ module.exports.generateUrl = async function (id) {
 }
 
 module.exports.validateOauth = async function (options, id) {
-    options.redirect_uri = `http://${redirectUri}/auth?id=${id}`,
+    options.redirect_uri = `http://${redirectUri}/auth`,
     options.scope = 'email';
+    options.state = id;
     const authToken = await client.getToken(options);
     const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;
     const data = (await Got(urlUserInfo)).body;
     const auxId = userPool.findIndex(item => item.id == id);
     userPool[auxId].status = "OK";
-    userPool[auxId].id = data.id;
-
     let user = await User.getUserDataByOauth(data.id);
     if (!user) {
         user = await User.createUser(data.id);

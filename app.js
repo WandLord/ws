@@ -121,19 +121,20 @@ app.post('/refer/:id', isValidToken, checkIsNotFighting, async function (req, re
 });
 
 app.get('/auth', async function (req, res) {
-  const { code, id } = req.query;
+  const { code, state } = req.query;
   const options = {
     code,
   };
 
-  await Oauth.validateOauth(options, id);
+  await Oauth.validateOauth(options, state);
   session = req.session;
-  session.userId = Crypto.ofuscateId(id);
+  session.userId = Crypto.ofuscateId(state);
   res.status(200).json("OK");
 });
 
 app.get('/authUrl/:id', async function (req, res) {
-  res.status(200).json(await Oauth.generateUrl(req.params.id));
+  
+  res.status(200).json(response(await Oauth.generateUrl(req.params.id), "", 200, ""));
 });
 
 app.get('/checkAuth/:id', async function (req, res) {
