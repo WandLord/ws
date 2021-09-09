@@ -1,12 +1,12 @@
 const MongoDB = require('../Connectors/MongoConnector');
 const collection_boss = "boss";
 
-var actualBoss = {};
-var totaldps = 0;
-var updatingData = false;
-var fighting = [];
+let actualBoss = {};
+let totaldps = 0;
+let updatingData = false;
+let fighting = [];
 
-module.exports.Status = function () {
+module.exports.getStatus = function () {
     var auxBoss = actualBoss;
     delete auxBoss.reward;
     delete auxBoss.fighting;
@@ -28,6 +28,7 @@ module.exports.joinPlayer = function (id, _dps) {
     totaldps += _dps;
     fighting.push(id);
 }
+
 module.exports.leftPlayer = function (id, _dps) {
     totaldps -= _dps;
     var index = fighting.indexOf(id);

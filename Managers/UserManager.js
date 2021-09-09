@@ -48,10 +48,9 @@ async function validateExtract(userId, destWeaponId, sourceWeaponId) {
         isValid: false,
         userData,
     }
-
     if (
         Object.keys(userData.inventory).length <= 2 ||
-        userData.equipWeapon == sourceWeaponId ||
+        userData.currentWeapon == sourceWeaponId ||
         destWeaponId == sourceWeaponId ||
         !userData.inventory.hasOwnProperty(destWeaponId) ||
         !(userData.inventory[destWeaponId].level < global.PARAMS.WEAPON_MAX_LEVEL) ||
@@ -142,6 +141,7 @@ module.exports.createUser = async function (userId) {
         _id: internalId,
         name: Crypto.ofuscateId(internalId.toString()),
         balance: 0,
+        blacklist: false,
         register: new Date().toISOString(),
         lastJoin: new Date().toISOString(),
         fighting: false,
@@ -157,7 +157,7 @@ module.exports.createUser = async function (userId) {
         }
     };
     await MongoDB.insert(collection_users, newUser);
-    return newUser;
+    return formatUserDataForReturn(newUser);
 }
 
 async function getUser(userId) {
@@ -165,10 +165,8 @@ async function getUser(userId) {
     if (!user) return false;
 
     await UpdateLastJoin(userId);
-    delete user.register;
-    delete user.lastJoin;
-    delete user.accounts;
-    return user;
+    
+    return formatUserDataForReturn(user);
 }
 
 module.exports.login = async function (userId) {
@@ -185,7 +183,7 @@ async function getUserData(userId) {
     return response;
 }
 
-async function getUserDataByName(userName) {
+module.exports.getUserDataByName = async function(userName) {
     const query = { name: userName };
     const response = await MongoDB.findOne(collection_users, query,{});
     return response;
@@ -196,7 +194,7 @@ module.exports.getUserDataByOauth = async function (userId) {
     const query = { [field]: userId };
     const user = await MongoDB.findOne(collection_users, query);
     if(!user) return false;
-    return user;
+    return formatUserDataForReturn(user);
 }
 
 async function findUserInBoss(_layer, userId) {
@@ -262,17 +260,36 @@ async function UpdateLastJoin(userId) {
 
 module.exports.refer = async function (userId, code) {
     const user = await getUserData(userId);
-    const userRefer = await getUserDataByName(code);
+    const userRefer = await module.exports.getUserDataByName(code);
     if(!user || user.name == code || !userRefer) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { refer: code } };
     return await MongoDB.update(collection_users, quey, value);
 }
 
+module.exports.addCurrencyToUserId = async function(userId, amount){
+    console.log(amount);
+    const quey = { _id: MongoDB.createId(userId) };
+    const value = { $inc: { balance: amount } };
+    return await MongoDB.update(collection_users, quey, value);
+}
+
 module.exports.changeNickname = async function (userId, nickname) {
     const user = await getUserData(userId);
-    //if(!user || user.nickname != Crypto.ofuscateId(user._id)) return false; 
+    if(!user || user.nickname != Crypto.ofuscateId(user._id)) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);
+}
+
+function formatUserDataForReturn(userData){
+    delete userData.register;
+    delete userData.lastJoin;
+    delete userData.accounts;
+    delete userData.blacklist;
+    if(userData.refer ==  global.PARAMS.DEFAULT_REFER){
+        delete userData.refer;
+    }
+
+    return userData;
 }

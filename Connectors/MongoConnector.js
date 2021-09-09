@@ -50,6 +50,7 @@ module.exports.createId = function (id) {
     }
     return response;
 }
+
 module.exports.createNewId = function () {
     var response = null;
     try {

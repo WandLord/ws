@@ -18,14 +18,11 @@ global.PARAMS =
     "PLAYER_DEFAULT_SKIN": "default",
     "TOKEN_KEY": "KEY",
     "TOKEN_EXPIRATION_TIME": 1000,
-    "CONTENT_CREATOR_CODE": {
-        "TestTV": "611a3a10ce221181b313e83d"
-    },
     "DEFAULT_REFER": "WandLord",
     "REFER_PERCETNAGE": 1,
     "TOKEN_TO_BURN": 40,
     "TOKEN_TO_BOSS": 55,
     "TOKEN_TO_US": 5,
     "TOKEN_DECIMALS": 8,
-    "SESSION_DURATION": 15 * 60 * 1000
+    
 };

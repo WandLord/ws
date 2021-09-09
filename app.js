@@ -16,10 +16,9 @@ dotenv.config();
 
 app.use(bodyParser.json());
 app.use(cors());
-
 app.use(sessions({
   cookie: {
-    maxAge: global.PARAMS.SESSION_DURATION,
+    maxAge:  Number(process.env.SESSION_DURATION),
   },
   proxy: true,
   resave: false,
@@ -60,8 +59,8 @@ app.get('/login/:id', async function (req, res) {
   }
 });
 
-app.get('/statusboss/:id', isValidToken, checkIsFighting, function (req, res) {
-  res.json(response(Boss.Status(), res.locals.validToken, 200, ""));
+app.get('/statusboss/:id', isValidToken, function (req, res) {
+  res.json(response(Boss.getStatus(), res.locals.validToken, 200, ""));
 });
 
 app.get('/refreshdata/:id', isValidToken, checkIsNotFighting, async function (req, res) {
