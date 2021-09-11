@@ -35,7 +35,7 @@ function checkUserSession(req, res, next) {
     return next();
   }
 
-  return res.status(401).send({ message: 'no session user' });
+  return res.redirect('/');
 }
 
 async function isValidToken(req, res, next) {
@@ -133,6 +133,11 @@ app.get('/auth', async function (req, res) {
   await Oauth.validateOauth(options, state);
   session = req.session;
   session.userId = Crypto.ofuscateId(state);
+  // use in 
+  res.redirect('/home');
+});
+
+app.get('/home', checkUserSession, async function (req, res) {
   res.sendFile(path.join(__dirname, './public', 'hub.html'));
 });
 
