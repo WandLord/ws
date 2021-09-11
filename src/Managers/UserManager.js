@@ -4,6 +4,7 @@ const BossManager = require('./BossManager');
 const Weapon = require('./WeaponManager');
 const Currensy = require('./CurrencyManager');
 const Crypto = require('./CryptoManager');
+const { ERRORS } = require('../utils/Errors');
 
 const collection_users = "users";
 const collection_boss = "boss";
@@ -77,8 +78,7 @@ module.exports.forge = async function (userId, mainWeaponId, secondayWeaponId) {
         return isNewWeaponForged ? forgedWeapon.newWeapon : false;
     } else {
         //TODO INTENTO DE FORJA SOSPECHOSO
-        console.log("INTENTO DE FORJA SOSPECHOSO");
-        return false;
+        throw new Error(ERRORS.INVALID_FORGE.MSG);
     }
 }
 
@@ -86,15 +86,13 @@ module.exports.extract = async function (userId, destWeaponId, sourceWeaponId) {
     const result = await validateExtract(userId, destWeaponId, sourceWeaponId);
     if (result.isValid) {
         const dps = Weapon.extract(result.userData.inventory[sourceWeaponId]);
-        const isUpdated = await extractUpdateData(result.userData._id, destWeaponId, sourceWeaponId, dps);
-        if (!isUpdated) return false;
+        await extractUpdateData(result.userData._id, destWeaponId, sourceWeaponId, dps);
         result.userData.inventory[destWeaponId].level += 1;
         result.userData.inventory[destWeaponId].dps += dps;
         return result.userData.inventory[destWeaponId];
     } else {
         //TODO INTENTO DE EXTRACCION SOSPECHOSO
-        console.log("INTENTO DE EXTRACCION SOSPECHOSO");
-        return false;
+        throw new Error(ERRORS.INVALID_EXTRACT.MSG);
     }
 }
 

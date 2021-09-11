@@ -41,10 +41,6 @@ async function loadBoss() {
     var query = { enable: true };
     var order = { projection: { fighting: 0 } };
     const newBoss = await MongoDB.findDefinite(collection_boss, query, order);
-    
-    if (!newBoss) {
-        throw new Error('nonewboss')
-    } 
 
     if (newBoss.actHP <= 0) {
         await battleEnd();

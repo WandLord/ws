@@ -21,7 +21,6 @@ module.exports.validateToken = function (token, id) {
         const decoded = jwt.verify(token, global.PARAMS.TOKEN_KEY);
         if (decoded.id == id) return module.exports.createToken(id);
     } catch (err) {
-        console.log('ERROR: ', ERRORS.ERRORS.TOKEN_VALIDATION.MSG);
+        throw new Error(ERRORS.ERRORS.TOKEN_VALIDATION.MSG);
     }
-    return false;
 }

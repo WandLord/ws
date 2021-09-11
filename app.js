@@ -41,8 +41,12 @@ function checkUserSession(req, res, next) {
 async function isValidToken(req, res, next) {
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   let token = req.header('authorization');
-  res.locals.validToken = Token.validateToken(token, req.params.id);
-  return res.locals.validToken ? next() : res.json(response({}, "", 202, "Invalid Token"));
+  try {
+    res.locals.validToken = Token.validateToken(token, req.params.id);
+  } catch (e) {
+    res.json(response({}, "", ERRORS.TOKEN_VALIDATION.CODE, ERRORS.TOKEN_VALIDATION.MSG))
+  }
+  return next();
 }
 
 function checkIsFighting(req, res, next) {
@@ -85,25 +89,22 @@ app.get('/leftBattle/:id', isValidToken, checkIsFighting, async function (req, r
 app.post('/forge/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var mainWeaponId = req.body.mainWeapon;
   var secondaryWeaponId = req.body.secondaryWeapon;
-
-  const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
-  if (newWeapon) {
+  try {
+    const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
     res.json(response(newWeapon, res.locals.validToken, 200, ""));
-  }
-  else {
-    res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE FORJA SOSPECHOSO"));
+  } catch (e) {
+    res.json(response(null, null, ERRORS.INVALID_FORGE.CODE, ERRORS.INVALID_FORGE.MSG));
   }
 });
 
 app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, res) {
   var destWeapon = req.body.destWeapon;
   var sourceWeapon = req.body.sourceWeapon;
-
-  const newWeapon = await User.extract(req.params.id, destWeapon, sourceWeapon);
-  if (newWeapon) {
+  try {
+    const newWeapon = await User.extract(req.params.id, destWeapon, sourceWeapon);
     res.json(response(newWeapon, res.locals.validToken, 200, ""));
-  } else {
-    res.json(response(newWeapon, res.locals.validToken, 300, "INTENTO DE EXTRACT SOSPECHOSO"));
+  } catch (e) {
+    res.json(response(null, null, ERRORS.INVALID_EXTRACT.CODE, ERRORS.INVALID_EXTRACT.MSG));
   }
 });
 
@@ -166,7 +167,7 @@ app.listen(3000, async function () {
     await MongoDB.connect();
     await Boss.start();
   } catch (e) {
-    console.log(response(null, null, ERRORS.DB_CONNECTION.CODE, ERRORS.DB_CONNECTION.MSG))
+    console.log(response(null, null, ERRORS.DB_CONNECTION.CODE, ERRORS.DB_CONNECTION.MSG));
     process.exit(1);
   }
 });

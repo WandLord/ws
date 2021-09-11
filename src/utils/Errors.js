@@ -19,4 +19,12 @@ module.exports.ERRORS = {
         CODE: 121,
         MSG: 'The token couldn\'t be verifed correctly.'
     },
+    INVALID_FORGE:{
+        CODE: 180,
+        MSG: 'Unexpected forge found.'
+    },
+    INVALID_EXTRACT:{
+        CODE: 181,
+        MSG: 'Unexpected extract found.'
+    },
 }
