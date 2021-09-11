@@ -40,9 +40,11 @@ module.exports.leftPlayer = function (id, _dps) {
 async function loadBoss() {
     var query = { enable: true };
     var order = { projection: { fighting: 0 } };
-    const newBoss = await MongoDB.findOne(collection_boss, query, order);
+    const newBoss = await MongoDB.findDefinite(collection_boss, query, order);
     
-    if (!newBoss) return false;
+    if (!newBoss) {
+        throw new Error('nonewboss')
+    } 
 
     if (newBoss.actHP <= 0) {
         await battleEnd();
@@ -56,7 +58,7 @@ async function loadBoss() {
 async function loadDPS(id) {
     var query = { _id: id };
     var order = {};
-    const boss = await MongoDB.findOne(collection_boss, query, order);
+    const boss = await MongoDB.findDefinite(collection_boss, query, order);
     Object.keys(boss.fighting).forEach(function (key) {
         var user = boss.fighting[key];
         if (user.fight) {

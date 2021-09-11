@@ -1,4 +1,4 @@
-const PARAMS = require('../Constants');
+const PARAMS = require('../utils/Constants');
 const MongoDB = require('../Connectors/MongoConnector');
 const BossManager = require('./BossManager');
 const Weapon = require('./WeaponManager');

@@ -1,15 +1,17 @@
 const express = require("express");
-const logger = require('./Connectors/LoggerConnector');
-const Boss = require('./Managers/BossManager');
-const User = require('./Managers/UserManager');
-const Crypto = require('./Managers/CryptoManager');
-const MongoDB = require('./Connectors/MongoConnector');
-const Token = require('./Managers/TokenManager');
+const logger = require('./src/Connectors/LoggerConnector');
+const Boss = require('./src/Managers/BossManager');
+const User = require('./src/Managers/UserManager');
+const Crypto = require('./src/Managers/CryptoManager');
+const MongoDB = require('./src/Connectors/MongoConnector');
+const Token = require('./src/Managers/TokenManager');
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const Oauth = require('./Managers/OauthManager');
+const Oauth = require('./src/Managers/OauthManager');
 const sessions = require('express-session');
 const dotenv = require('dotenv');
+const path = require('path');
+const { ERRORS } = require("./src/utils/Errors");
 
 const app = express();
 dotenv.config();
@@ -25,6 +27,8 @@ app.use(sessions({
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET || '',
 }));
+
+app.use(express.static(__dirname + 'public'))
 
 function checkUserSession(req, res, next) {
   if (req.session && req.session.userId) {
@@ -128,7 +132,7 @@ app.get('/auth', async function (req, res) {
   await Oauth.validateOauth(options, state);
   session = req.session;
   session.userId = Crypto.ofuscateId(state);
-  res.status(200).json("OK");
+  res.sendFile(path.join(__dirname, './public', 'hub.html'));
 });
 
 app.get('/authUrl/:id', async function (req, res) {
@@ -162,7 +166,7 @@ app.listen(3000, async function () {
     await MongoDB.connect();
     await Boss.start();
   } catch (e) {
-    console.log('Error: ', e);
+    console.log(response(null, null, ERRORS.DB_CONNECTION.CODE, ERRORS.DB_CONNECTION.MSG))
     process.exit(1);
   }
 });

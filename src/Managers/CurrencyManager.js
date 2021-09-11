@@ -1,4 +1,4 @@
-const PARAMS = require('../Constants');
+const PARAMS = require('../utils/Constants');
 const User = require('./UserManager');
 const MongoDB = require('../Connectors/MongoConnector');
 const collection_data = "data";

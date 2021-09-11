@@ -1,6 +1,7 @@
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 const dotenv = require('dotenv');
+const ERRORS = require('../utils/Errors');
 dotenv.config();
 
 const uri = process.env.DATABASE_URI;
@@ -16,12 +17,24 @@ module.exports.findOne = async function(_collection, query, fields) {
     return await db.collection(_collection).findOne(query, fields);
 }
 
+module.exports.findDefinite = async function(_collection, query, fields) {
+    const item = await db.collection(_collection).findOne(query, fields);
+    if (!item) {
+        throw new Error(ERRORS.ERRORS.DB_FIND_DEFINITE.MSG);
+    }
+    return item;
+}
+
 module.exports.findOneByFields = async function (_collection, query, fields) {
     return await db.collection(_collection).findOne(query, fields);
 }
 
 module.exports.update = async function (_collection, query, value) {
-    return (await db.collection(_collection).updateOne(query, value)).modifiedCount > 0;
+    const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
+    if (numberOfUpdatedItems === 0) {
+        throw new Error(ERRORS.ERRORS.DB_UPDATE.MSG);
+    }
+    return numberOfUpdatedItems;
 }
 
 module.exports.insert = async function (_collection, value) {

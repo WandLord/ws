@@ -1,4 +1,4 @@
-const PARAMS = require('../Constants');
+const PARAMS = require('../utils/Constants');
 const Crypto = require('./CryptoManager');
 
 

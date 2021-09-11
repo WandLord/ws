@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const PARAMS = require('../Constants');
+const PARAMS = require('../utils/Constants');
+const ERRORS = require('../utils/Errors');
 
 
 module.exports.createToken = function (id) {
@@ -20,7 +21,7 @@ module.exports.validateToken = function (token, id) {
         const decoded = jwt.verify(token, global.PARAMS.TOKEN_KEY);
         if (decoded.id == id) return module.exports.createToken(id);
     } catch (err) {
-        return false;
+        console.log('ERROR: ', ERRORS.ERRORS.TOKEN_VALIDATION.MSG);
     }
     return false;
 }
