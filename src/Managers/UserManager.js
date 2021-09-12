@@ -272,7 +272,7 @@ module.exports.addCurrencyToUserId = async function(userId, amount){
 
 module.exports.changeNickname = async function (userId, nickname) {
     const user = await getUserData(userId);
-    if(!user || user.name != Crypto.ofuscateId(userId)) return false; 
+    if(!user || user.name != Crypto.ofuscateId(userId) || nickname.length > 20) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);
@@ -285,7 +285,7 @@ function formatUserDataForReturn(userData){
     delete userData.blacklist;
     delete userData.ip;
     if(userData.refer.toLowerCase() ==  global.PARAMS.DEFAULT_REFER){
-        delete userData.refer;
+        userData.refer ="";
     }
 
     return userData;
