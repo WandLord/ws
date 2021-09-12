@@ -49,6 +49,13 @@ async function isValidToken(req, res, next) {
   return next();
 }
 
+async function updateLastJoin(req, res, next) {
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  let id = req.params.id;
+  await User.UpdateLastJoin(id, ip);
+  return next();
+}
+
 function checkIsFighting(req, res, next) {
   Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, 300, "No esta en pelea pero llega la request."));
 }
@@ -67,7 +74,7 @@ app.get('/login/:id', async function (req, res) {
   }
 });
 
-app.get('/statusboss/:id', isValidToken, function (req, res) {
+app.get('/statusboss/:id', isValidToken, updateLastJoin, function (req, res) {
   res.json(response(Boss.getStatus(), res.locals.validToken, 200, ""));
 });
 
@@ -115,7 +122,6 @@ app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, re
   if (isEquippedWeapon) {
     res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
   } else {
-    //TODO EQUIPAR ARMA QUE NO ESTA EN EL INVENTARIO
     res.json(response(isEquippedWeapon, res.locals.validToken, 300, "Intento de equipar un arma que no tiene"));
   }
 });

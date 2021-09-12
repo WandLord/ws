@@ -27,4 +27,44 @@ module.exports.ERRORS = {
         CODE: 181,
         MSG: 'Unexpected extract found.'
     },
+    INVALID_EQUIP:{
+        CODE: 182,
+        MSG: 'Unexpected Equip found.'
+    },
+    INVALID_JOIN_BATTLE:{
+        CODE: 183,
+        MSG: 'Unexpected Join Battle found.'
+    },
+    INVALID_LEFT_BATTLE:{
+        CODE: 184,
+        MSG: 'Unexpected Left Battle found.'
+    },
+    INVALID_REFER:{
+        CODE: 185,
+        MSG: 'Invalid nickname for refer.'
+    },
+    INVALID_NICKNAME:{
+        CODE: 185,
+        MSG: 'The nikcname are alredy in use.'
+    },
+    ERROR_NICKNAME:{
+        CODE: 185,
+        MSG: 'Can change nickname only one time.'
+    },
+    AUTH_URL:{
+        CODE: 160,
+        MSG: 'Error generating URL for authentification.'
+    },
+    AUTH_VALIDATE:{
+        CODE: 161,
+        MSG: 'Unexpected Error validating auth'
+    },
+    AUTH_CHECKOUT:{
+        CODE: 162,
+        MSG: 'Unexpected Error CHECKOUT auth'
+    },
+    ERROR_ATH_CHECKOUT:{
+        CODE: 162,
+        MSG: 'Unexpected Error CHECKOUT auth'
+    },
 }

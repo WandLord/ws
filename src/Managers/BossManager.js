@@ -27,6 +27,7 @@ async function battleEnd() {
 module.exports.joinPlayer = function (id, _dps) {
     totaldps += _dps;
     fighting.push(id);
+    actualBoss.players++;
 }
 
 module.exports.leftPlayer = function (id, _dps) {
@@ -34,6 +35,7 @@ module.exports.leftPlayer = function (id, _dps) {
     var index = fighting.indexOf(id);
     if (index > -1) {
         fighting.splice(index, 1);
+        actualBoss.players--;
     }
 }
 
@@ -46,7 +48,8 @@ async function loadBoss() {
         await battleEnd();
     } else if (newBoss.enable == true) {
         actualBoss = newBoss;
-        await loadDPS(actualBoss._id)
+        await loadDPS(actualBoss._id);
+        actualBoss.players = fighting.length;
     }
     return true;
 }

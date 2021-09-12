@@ -70,14 +70,16 @@ async function validateEquip(userId, weapon) {
 }
 
 module.exports.forge = async function (userId, mainWeaponId, secondayWeaponId) {
+
+    console.log("Forge"); 
+
     const result = await validateForge(userId, mainWeaponId, secondayWeaponId);
     if (result.isValid) {
-        await Currensy.spend(userId, result.price, "forge", result.userData.refer);
+        Currensy.spend(userId, result.price, "forge", result.userData.refer);
         const forgedWeapon = Weapon.forgeWeapon(result.userData.inventory[mainWeaponId], result.userData.inventory[secondayWeaponId]);
         const isNewWeaponForged = await forgeUpdateData(result.userData._id, mainWeaponId, secondayWeaponId, forgedWeapon.weaponId, forgedWeapon.newWeapon, result.price);
         return isNewWeaponForged ? forgedWeapon.newWeapon : false;
     } else {
-        //TODO INTENTO DE FORJA SOSPECHOSO
         throw new Error(ERRORS.INVALID_FORGE.MSG);
     }
 }
@@ -91,7 +93,6 @@ module.exports.extract = async function (userId, destWeaponId, sourceWeaponId) {
         result.userData.inventory[destWeaponId].dps += dps;
         return result.userData.inventory[destWeaponId];
     } else {
-        //TODO INTENTO DE EXTRACCION SOSPECHOSO
         throw new Error(ERRORS.INVALID_EXTRACT.MSG);
     }
 }
@@ -161,9 +162,6 @@ module.exports.createUser = async function (userId) {
 async function getUser(userId) {
     const user = await getUserData(userId);
     if (!user) return false;
-
-    await UpdateLastJoin(userId);
-    
     return formatUserDataForReturn(user);
 }
 
@@ -182,7 +180,7 @@ async function getUserData(userId) {
 }
 
 module.exports.getUserDataByName = async function(userName) {
-    const query = { name: userName };
+    const query = { name: new RegExp("^" + userName.toLowerCase(), "i") };
     const response = await MongoDB.findOne(collection_users, query,{});
     return response;
 }
@@ -214,7 +212,7 @@ module.exports.joinBattle = async function (_user) {
     // TODO: Capturar arriba
     if (!user) return false;
 
-    var boss = BossManager.Status();
+    var boss = BossManager.getStatus();
     const statusChanged = await changeFightingStatus(_user, true);
     const userField1 = "fighting." + _user + ".dps";
     const userField2 = "fighting." + _user + ".fight";
@@ -250,9 +248,9 @@ module.exports.leftBattle = async function (_user) {
     return false;
 }
 
-async function UpdateLastJoin(userId) {
+module.exports.UpdateLastJoin = async function (userId, userIp) {
     var quey = { _id: MongoDB.createId(userId) };
-    var value = { $set: { lastJoin: new Date().toISOString() } };
+    var value = { $set: { lastJoin: new Date().toISOString(), ip: userIp } };
     await MongoDB.update(collection_users, quey, value);
 }
 
@@ -285,6 +283,7 @@ function formatUserDataForReturn(userData){
     delete userData.lastJoin;
     delete userData.accounts;
     delete userData.blacklist;
+    delete userData.ip;
     if(userData.refer ==  global.PARAMS.DEFAULT_REFER){
         delete userData.refer;
     }
