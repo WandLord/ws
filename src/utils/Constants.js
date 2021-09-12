@@ -18,7 +18,7 @@ global.PARAMS =
     "PLAYER_DEFAULT_SKIN": "default",
     "TOKEN_KEY": "KEY",
     "TOKEN_EXPIRATION_TIME": 1000,
-    "DEFAULT_REFER": "WandLord",
+    "DEFAULT_REFER": "wandlord",
     "REFER_PERCETNAGE": 1,
     "TOKEN_TO_BURN": 40,
     "TOKEN_TO_BOSS": 55,

@@ -284,7 +284,7 @@ function formatUserDataForReturn(userData){
     delete userData.accounts;
     delete userData.blacklist;
     delete userData.ip;
-    if(userData.refer ==  global.PARAMS.DEFAULT_REFER){
+    if(userData.refer.toLowerCase() ==  global.PARAMS.DEFAULT_REFER){
         delete userData.refer;
     }
 
