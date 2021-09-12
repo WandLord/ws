@@ -78,22 +78,22 @@ app.get('/statusboss/:id', isValidToken, updateLastJoin, function (req, res) {
   res.json(response(Boss.getStatus(), res.locals.validToken, 200, ""));
 });
 
-app.get('/refreshdata/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.get('/refreshdata/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   const refreshedUser = await User.refreshData(req.params.id);
   res.json(response(refreshedUser, res.locals.validToken, 200, ""));
 });
 
-app.get('/joinbattle/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.get('/joinbattle/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   const userHasJoinedBattle = await User.joinBattle(req.params.id);
   res.json(response(userHasJoinedBattle, res.locals.validToken, 200, ""));
 });
 
-app.get('/leftBattle/:id', isValidToken, checkIsFighting, async function (req, res) {
+app.get('/leftBattle/:id', isValidToken, checkIsFighting, updateLastJoin, async function (req, res) {
   const userHasLeftBattle = await User.leftBattle(req.params.id);
   res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
 });
 
-app.post('/forge/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.post('/forge/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   var mainWeaponId = req.body.mainWeapon;
   var secondaryWeaponId = req.body.secondaryWeapon;
   try {
@@ -104,7 +104,7 @@ app.post('/forge/:id', isValidToken, checkIsNotFighting, async function (req, re
   }
 });
 
-app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.post('/extract/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   var destWeapon = req.body.destWeapon;
   var sourceWeapon = req.body.sourceWeapon;
   try {
@@ -115,7 +115,7 @@ app.post('/extract/:id', isValidToken, checkIsNotFighting, async function (req, 
   }
 });
 
-app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.post('/equip/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   var weapon = req.body.weapon;
 
   const isEquippedWeapon = await User.equipWeapon(req.params.id, weapon);
@@ -126,7 +126,7 @@ app.post('/equip/:id', isValidToken, checkIsNotFighting, async function (req, re
   }
 });
 
-app.post('/refer/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.post('/refer/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   res.json(response(await User.refer(req.params.id, req.body.code), res.locals.validToken, 200, ""));
 });
 
@@ -157,7 +157,7 @@ app.get('/checkAuth/:id', async function (req, res) {
   res.json(response(user, Token.createToken(user._id), 200, ""));
 });
 
-app.post('/nickname/:id', isValidToken, checkIsNotFighting, async function (req, res) {
+app.post('/nickname/:id', isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
 });
 

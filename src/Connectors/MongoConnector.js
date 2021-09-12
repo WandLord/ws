@@ -34,7 +34,7 @@ module.exports.update = async function (_collection, query, value) {
     if (numberOfUpdatedItems === 0) {
         throw new Error(ERRORS.ERRORS.DB_UPDATE.MSG);
     }
-    return numberOfUpdatedItems;
+    return true;
 }
 
 module.exports.insert = async function (_collection, value) {
