@@ -27,7 +27,9 @@ module.exports.generateUrl = async function (id) {
         state: id,
         scope: 'email',
     });
-    checkAuthAlive();
+    checkAuthAlive();    
+    const auxId = userPool.findIndex(item => item.id == id);
+    if (userPool[auxId]) delete userPool[auxId];
     userPool.push({ id, status: "waiting", createdAt: new Date() });
     return authorizationUri;
 }
