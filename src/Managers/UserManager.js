@@ -228,7 +228,7 @@ module.exports.joinBattle = async function (_user) {
 }
 
 module.exports.leftBattle = async function (_user) {
-    var boss = BossManager.Status();
+    var boss = BossManager.getStatus();
     let bossUserData = await findUserInBoss(boss.layer, _user);
     if (!bossUserData) return false;
 
