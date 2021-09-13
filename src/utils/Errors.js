@@ -1,7 +1,7 @@
 module.exports.ERRORS = {
     DEFAULT:{
         CODE:401,
-        MSG: 'unexpected error'
+        MSG: 'unexpected error',
     },
     DB_CONNECTION:{
         CODE: 100,

@@ -29,6 +29,7 @@ module.exports.generateUrl = async function (id) {
     });
     checkAuthAlive();    
     const auxId = userPool.findIndex(item => item.id == id);
+    if (!userPool[auxId]) return "dont find";
     if (userPool[auxId]) delete userPool[auxId];
     userPool.push({ id, status: "waiting", createdAt: new Date() });
     return authorizationUri;
