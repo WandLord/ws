@@ -7,7 +7,7 @@ const transactionsIndex = "wandlord-transactions";
 class Logger {
 
     SystemInfo(data) {
-        elastic.loggerSystem(data);
+        elastic.logger(systemIndex, data);
     }
 /*
     SystemWarning(data) {

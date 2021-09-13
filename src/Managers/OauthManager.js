@@ -42,6 +42,7 @@ module.exports.validateOauth = async function (options, id) {
     const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;
     const data = JSON.parse((await Got(urlUserInfo)).body);
     const auxId = userPool.findIndex(item => item.id == id);
+    if(auxId == -1) return null;
     userPool[auxId].status = "OK";
     let user = await User.getUserDataByOauth(data.id);
     if (!user) {
@@ -56,7 +57,7 @@ module.exports.checkAuth = async function (id) {
     const auxId = userPool.findIndex(item => item.id == id);
     if (!userPool[auxId]) return "dont find";
     const userAux = { ...userPool[auxId] };
-    if (userAux.status === 'OK' && Moment(userAux.createdAt).add(process.env.AUTH_DURATION, 'minute') >= Moment()) {
+    if (userAux.status === 'OK' && Moment(userAux.createdAt).add(process.env.AUTH_DURATION, 'seconds') >= Moment()) {
         userPool.splice(auxId, 1);
         return userAux.data;
     }
@@ -65,7 +66,8 @@ module.exports.checkAuth = async function (id) {
 
 function checkAuthAlive() {
     userPool.forEach((auth, index, object) => {
-        if (Moment(auth.createdAt).add(process.env.AUTH_DURATION, 'minute') >= Moment()) {
+        if (Moment(auth.createdAt).add(process.env.AUTH_DURATION, 'seconds') >= Moment()) {
+            console.log("borrando 1 auth");
             object.splice(index, 1);
         }
     });
