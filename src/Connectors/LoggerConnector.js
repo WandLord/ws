@@ -1,4 +1,4 @@
-const elastic = require("elasticsearch");
+const elasticsearch = require("elasticsearch");
 
 var client = new elasticsearch.Client({
   hosts: [
@@ -7,6 +7,7 @@ var client = new elasticsearch.Client({
 });
 
 module.exports.loggerSystem = function (data) {
+  const body = {};
   body.type = '_doc'
   body.index = "wandlord-system";
   var auxBody = {
@@ -23,7 +24,7 @@ module.exports.loggerSystem = function (data) {
   body.body = auxBody;
   send(body);
 }
-module.exports.loggerSystem = function (_ip, _service, _state, _dataOUT, _dataIN, _user, extra) {
+/*module.exports.loggerSystem = function (_ip, _service, _state, _dataOUT, _dataIN, _user, extra) {
   body = bodyTemplate;
   var auxBody = {};
   auxBody["ip"] = _ip;
@@ -36,7 +37,7 @@ module.exports.loggerSystem = function (_ip, _service, _state, _dataOUT, _dataIN
   auxBody["index"] = "System";
   body["body"] = auxBody;
   send(body);
-}
+}*/
 
 function send(body) {
   body["body"]["timeStamp"] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');

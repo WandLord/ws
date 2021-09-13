@@ -1,4 +1,4 @@
-const {elastic} = require("../Connectors/LoggerConnector");
+const elastic = require("../Connectors/LoggerConnector");
 
 const systemIndex = "wandlord-system";
 const wsIndex = "wandlord-ws";
