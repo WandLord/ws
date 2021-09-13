@@ -20,8 +20,6 @@ const elasticTransport = (indexPrefix) => {
     level: "info",
     index: indexPrefix,
     transformer: logData => {
-      console.log(logData);
-      logData.timestamp =Math.floor(Date.now() / 1000);
       return {
         user: logData.message.user,
         ip: logData.message.ip,
@@ -36,10 +34,6 @@ const elasticTransport = (indexPrefix) => {
     },
     clientOpts: {
       node: process.env.ELASTICSEARCH_HOST,
-      auth: {
-        username: process.env.ELASTICSEARCH_USER,
-        password: process.env.ELASTICSEARCH_PASSWORD,
-      },
     }
   };
   return esTransportOpts;
