@@ -1,5 +1,5 @@
 const express = require("express");
-const logger = require('./src/Connectors/LoggerConnector');
+const logger = require('./src/utils/Logger');
 const Boss = require('./src/Managers/BossManager');
 const User = require('./src/Managers/UserManager');
 const Crypto = require('./src/Managers/CryptoManager');
@@ -34,7 +34,6 @@ function checkUserSession(req, res, next) {
   if (req.session && req.session.userId) {
     return next();
   }
-
   return res.redirect('/');
 }
 
@@ -175,6 +174,7 @@ app.get('/logout', function (req, res) {
 app.listen(3000, async function () {
   console.log("El servidor está inicializado en el puerto 3000");
   try {
+    logger.SystemInfo({method: "Start", payload: "El servidor está inicializado en el puerto 3000"});
     await MongoDB.connect();
     await Boss.start();
   } catch (e) {

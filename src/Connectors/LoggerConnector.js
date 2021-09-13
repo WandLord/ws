@@ -1,45 +1,46 @@
-const elasticsearch  =require('elasticsearch');
-var bodyTemplate = {index: "connections", type: '_doc',};
+const { ElasticsearchTransport } = require("winston-elasticsearch");
+const winston = require("winston");
 
-var client = new elasticsearch.Client( {  
-  hosts: [
-    'http://elastic:changeme@localhost:9200',
-  ]
-});
+module.exports.logTransport = indexPrefix => {
 
-module.exports.loggerService = function(_ip, _service, _state, _dataOUT, _dataIN, _user, _extra){
-  body = bodyTemplate;
-  body["index"] = "connections";
-  var auxBody = {};
-  auxBody["ip"] = _ip.replace("::ffff:","");
-  auxBody["service"] = _service;
-  auxBody["dataOUT"] = _dataOUT;
-  auxBody["state"] = _state;
-  auxBody["dataIN"] = _dataIN;
-  auxBody["user"] = _user;
-  auxBody["extra"] = _extra;
-  body["body"] = auxBody;
-  send(body);
-}
-module.exports.loggerSystem = function(_ip, _service, _state, _dataOUT, _dataIN, _user, extra){
-  body = bodyTemplate;
-  var auxBody = {};
-  auxBody["ip"] = _ip;
-  auxBody["service"] = _service;
-  auxBody["dataOUT"] = _dataOUT;
-  auxBody["state"] = _state;
-  auxBody["dataIN"] = _dataIN;
-  auxBody["user"] = _user;
-  auxBody["extra"] = _extra;
-  auxBody["index"] = "System";
-  body["body"] = auxBody;
-  send(body);
-}
+  let consoleTransport = [
+    new ElasticsearchTransport({
+      ...elasticTransport(indexPrefix)
+    })
+  ];
+  const logger = winston.createLogger({
+    transports: consoleTransport
+  });
+  return logger;
+};
 
-function send(body) {
-  body["body"]["timeStamp"] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-  client.index(body,
-     function(err, resp, status) {
-    if(err) throw err;
-});
-}
+const elasticTransport = (indexPrefix) => {
+
+  const esTransportOpts = {
+    level: "info",
+    index: indexPrefix,
+    transformer: logData => {
+      console.log(logData);
+      logData.timestamp =Math.floor(Date.now() / 1000);
+      return {
+        user: logData.message.user,
+        ip: logData.message.ip,
+        id: logData.message.id,
+        method: logData.message.method,
+        dataIn: logData.message.dataIn,
+        dataOut: logData.message.dataOut,
+        timestamp: Math.floor(Date.now() / 1000),
+        payload: logData.message.payload,
+        state: logData.message.state,
+      };
+    },
+    clientOpts: {
+      node: process.env.ELASTICSEARCH_HOST,
+      auth: {
+        username: process.env.ELASTICSEARCH_USER,
+        password: process.env.ELASTICSEARCH_PASSWORD,
+      },
+    }
+  };
+  return esTransportOpts;
+};
