@@ -17,9 +17,7 @@
     "mongodb": "^4.1.0",
     "mongoose": "^5.13.7",
     "simple-oauth2": "^4.2.0",
-    "web3": "^1.5.1",
-    "winston": "^3.3.3",
-    "winston-elasticsearch": "^0.15.8"
+    "web3": "^1.5.1"
   },
   "devDependencies": {},
   "scripts": {

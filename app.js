@@ -178,6 +178,7 @@ app.listen(3000, async function () {
     await MongoDB.connect();
     await Boss.start();
   } catch (e) {
+    console.log(e);
     console.log(response(null, null, ERRORS.DB_CONNECTION.CODE, ERRORS.DB_CONNECTION.MSG));
     process.exit(1);
   }

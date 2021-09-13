@@ -1,4 +1,4 @@
-const {logTransport} = require("../Connectors/LoggerConnector");
+const {elastic} = require("../Connectors/LoggerConnector");
 
 const systemIndex = "wandlord-system";
 const wsIndex = "wandlord-ws";
@@ -7,10 +7,9 @@ const transactionsIndex = "wandlord-transactions";
 class Logger {
 
     SystemInfo(data) {
-        const logger = logTransport(systemIndex);
-        logger.info(data);
+        elastic.loggerSystem(data);
     }
-
+/*
     SystemWarning(data) {
         const logger = logTransport(systemIndex);
         logger.warning(data);
@@ -34,6 +33,6 @@ class Logger {
     Error(data) {
         const logger = logTransport(wsIndex);
         logger.error(data);
-    }
+    }*/
 }
 module.exports = new Logger();
