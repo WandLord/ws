@@ -29,7 +29,6 @@ module.exports.generateUrl = async function (id) {
     });
     checkAuthAlive();    
     const auxId = userPool.findIndex(item => item.id == id);
-    if (!userPool[auxId]) return "dont find";
     if (userPool[auxId]) delete userPool[auxId];
     userPool.push({ id, status: "waiting", createdAt: new Date() });
     return authorizationUri;
@@ -37,7 +36,7 @@ module.exports.generateUrl = async function (id) {
 
 module.exports.validateOauth = async function (options, id) {
     options.redirect_uri = `http://${redirectUri}/auth`,
-        options.scope = 'email';
+    options.scope = 'email';
     options.state = id;
     const authToken = await client.getToken(options);
     const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;
