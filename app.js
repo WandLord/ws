@@ -11,7 +11,7 @@ const Oauth = require('./src/Managers/OauthManager');
 const sessions = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
-const { ERRORS } = require("./src/utils/Errors");
+const Errors = require("./src/utils/Errors");
 
 const app = express();
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(sessions({
   cookie: {
-    maxAge:  Number(process.env.SESSION_DURATION),
+    maxAge: Number(process.env.SESSION_DURATION),
   },
   proxy: true,
   resave: false,
@@ -43,7 +43,7 @@ async function isValidToken(req, res, next) {
   try {
     res.locals.validToken = Token.validateToken(token, req.params.id);
   } catch (e) {
-    res.json(response({}, "", ERRORS.TOKEN_VALIDATION.CODE, ERRORS.TOKEN_VALIDATION.MSG))
+    res.json(response({}, "", Errors.TOKEN_VALIDATION.CODE, Errors.TOKEN_VALIDATION.MSG))
   }
   return next();
 }
@@ -99,7 +99,7 @@ app.post('/forge/:id', isValidToken, checkIsNotFighting, updateLastJoin, async f
     const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
     res.json(response(newWeapon, res.locals.validToken, 200, ""));
   } catch (e) {
-    res.json(response(null, null, ERRORS.INVALID_FORGE.CODE, ERRORS.INVALID_FORGE.MSG));
+    res.json(response(null, null, Errors.INVALID_FORGE.CODE, Errors.INVALID_FORGE.MSG));
   }
 });
 
@@ -110,7 +110,7 @@ app.post('/extract/:id', isValidToken, checkIsNotFighting, updateLastJoin, async
     const newWeapon = await User.extract(req.params.id, destWeapon, sourceWeapon);
     res.json(response(newWeapon, res.locals.validToken, 200, ""));
   } catch (e) {
-    res.json(response(null, null, ERRORS.INVALID_EXTRACT.CODE, ERRORS.INVALID_EXTRACT.MSG));
+    res.json(response(null, null, Errors.INVALID_EXTRACT.CODE, Errors.INVALID_EXTRACT.MSG));
   }
 });
 
@@ -147,7 +147,7 @@ app.get('/home', checkUserSession, async function (req, res) {
 });
 
 app.get('/authUrl/:id', async function (req, res) {
-  
+
   res.status(200).json(response(await Oauth.generateUrl(req.params.id), "", 200, ""));
 });
 
@@ -162,24 +162,22 @@ app.post('/nickname/:id', isValidToken, checkIsNotFighting, updateLastJoin, asyn
 
 app.use((req, res) => {
   console.log('Hello Wereld');
-  //TODO Intentando llamar a un servicio inexistente
-  res.status(404).send({ message: 'Not Found', path: req.originalUrl })
+  res.redirect(process.env.WANDLORD_WEBSITE);
 });
 
 app.get('/logout', function (req, res) {
   req.session.destroy();
-  res.redirect('/');
+  res.redirect(process.env.WANDLORD_WEBSITE);
 });
 
 app.listen(3000, async function () {
-  console.log("El servidor está inicializado en el puerto 3000");
   try {
-    logger.SystemInfo({method: "Start", payload: "El servidor está inicializado en el puerto 3000"});
     await MongoDB.connect();
     await Boss.start();
-  } catch (e) {
-    console.log(e);
-    console.log(response(null, null, ERRORS.DB_CONNECTION.CODE, ERRORS.DB_CONNECTION.MSG));
+    //logger.SystemInfo({ method: "Start", payload: "El servidor está inicializado en el puerto 3000" });
+    console.log("El servidor está inicializado en el puerto 3000");
+  } catch (err) {
+    console.log(err);
     process.exit(1);
   }
 });

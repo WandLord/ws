@@ -197,7 +197,7 @@ async function findUserInBoss(_layer, userId) {
     const query = { layer: _layer };
     const _fighting = "fighting." + userId;
     const _fields = { projection: { [_fighting]: 1, _id: 0 } };
-    return await MongoDB.findOneByFields(collection_boss, query, _fields);
+    return await MongoDB.findOne(collection_boss, query, _fields);
 }
 
 async function changeFightingStatus(userId, bool) {

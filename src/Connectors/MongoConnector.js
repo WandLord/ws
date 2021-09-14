@@ -1,75 +1,99 @@
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 const dotenv = require('dotenv');
-const ERRORS = require('../utils/Errors');
+const logger = require('../utils/Logger');
+const Errors = require('../utils/Errors');
 dotenv.config();
 
 const uri = process.env.DATABASE_URI;
 const client = new MongoClient(uri);
-var db = {};
+let db = {};
 
+class MongoConnector {
 
-module.exports.find = async function (_collection, query, fields) {
-    return await db.collection(_collection).find(query, fields).toArray();
-}
-
-module.exports.findOne = async function(_collection, query, fields) {
-    return await db.collection(_collection).findOne(query, fields);
-}
-
-module.exports.findDefinite = async function(_collection, query, fields) {
-    const item = await db.collection(_collection).findOne(query, fields);
-    if (!item) {
-        throw new Error(ERRORS.ERRORS.DB_FIND_DEFINITE.MSG);
+    async find(_collection, query, fields) {
+        try {
+            const item = await db.collection(_collection).find(query, fields).toArray();
+            if (!item) {
+                logger.SystemError({ method: "MongoConnector.find", dataIn: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
+                throw new Errors.DB_FIND_DEFINITE();
+            }
+        } catch (err) {
+            if (err instanceof Errors) {
+                throw err;
+            }
+            logger.SystemError({ method: "MongoConnector.find", dataIn: { _collection, query, fields }, payload: err });
+            process.exit(1);
+        }
     }
-    return item;
-}
 
-module.exports.findOneByFields = async function (_collection, query, fields) {
-    return await db.collection(_collection).findOne(query, fields);
-}
-
-module.exports.update = async function (_collection, query, value) {
-    const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
-    if (numberOfUpdatedItems === 0) {
-        throw new Error(ERRORS.ERRORS.DB_UPDATE.MSG);
+    async findOne(_collection, query, fields) {
+        try {
+            const item = await db.collection(_collection).findOne(query, fields);
+            if (!item) {
+                logger.SystemError({ method: "MongoConnector.findOne", dataIn: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
+                throw new Errors.DB_FIND_DEFINITE();
+            }
+            return item;
+        } catch (err) {
+            if (err instanceof Errors) {
+                throw err;
+            }
+            logger.SystemError({ method: "MongoConnector.findOne", dataIn: { _collection, query, fields }, payload: err });
+            process.exit(1);
+        }
     }
-    return true;
-}
 
-module.exports.insert = async function (_collection, value) {
-    return await db.collection(_collection).insertOne(value);
-}
-
-module.exports.delete = function (_collection, query, callback) {
-    db.collection(_collection).deleteOne(query, function (err, result) {
-        if (err) return callback(false);
-        callback(true);
-    });
-}
-
-module.exports.connect = async function () {
-    await client.connect();
-    db = client.db(process.env.DATABASE_CLIENT);
-    console.log("MongoDB - OK");
-}
-
-module.exports.createId = function (id) {
-    var response = null;
-    try {
-        response = new ObjectId(id);
-    } catch (err) {
-        response = false;
+    async update(_collection, query, value) {
+        try {
+            const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
+            if (numberOfUpdatedItems === 0) {
+                logger.SystemError({ method: "MongoConnector.update", dataIn: { _collection, query, value }, payload: new Errors.DB_UPDATE_DEFINITE() });
+                throw new Errors.DB_UPDATE_DEFINITE();
+            }
+            return true;
+        } catch (err) {
+            if (err instanceof Errors) {
+                throw err;
+            }
+            logger.SystemError({ method: "MongoConnector.update", dataIn: { _collection, query, value }, payload: err });
+            process.exit(1);
+        }
     }
-    return response;
-}
 
-module.exports.createNewId = function () {
-    var response = null;
-    try {
-        response = new ObjectId();
-    } catch (err) {
-        response = false;
+    async insert(_collection, value) {
+        try {
+            return await db.collection(_collection).insertOne(value);
+        } catch (err) {
+            logger.SystemError({ method: "MongoConnector.insert", dataIn: { _collection, value }, payload: err });
+            process.exit(1);
+        }
     }
-    return response;
+
+    async connect() {
+        try {
+            await client.connect();
+            db = client.db(process.env.DATABASE_CLIENT);
+            console.log("MongoDB - OK")
+        } catch (err) {
+            logger.SystemError({ method: "MongoConnector.connect", dataIn: { _collection, value }, payload: err });
+            process.exit(1);
+        }
+    }
+
+    createId(id) {
+        let response = null;
+        try {
+            response = new ObjectId(id);
+        } catch (err) {
+            logger.SystemError({ method: "MongoConnector.CreateId", dataIn: id, payload: new Errors.DB_CREATE_ID() });
+            throw new Errors.DB_CREATE_ID();
+        }
+        return response;
+    }
+
+    createNewId() {
+        return new ObjectId();
+    }
 }
+module.exports = new MongoConnector();
