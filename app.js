@@ -150,8 +150,9 @@ app.get('/auth', async function (req, res) {
 });
 
 app.get('/home', checkUserSession, async function (req, res) {
+  const user = await User.getUser(Crypto.decryptUserId(req.session.userId));
   res.render('html/hub.html', {
-    userId: req.session.id,
+    user,
   });
 });
 

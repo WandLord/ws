@@ -159,7 +159,7 @@ module.exports.createUser = async function (userId) {
     return formatUserDataForReturn(newUser);
 }
 
-async function getUser(userId) {
+module.exports.getUser = async function (userId) {
     const user = await getUserData(userId);
     if (!user) return false;
     return formatUserDataForReturn(user);
