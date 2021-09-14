@@ -1,0 +1,302 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
+body, html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: #f4dcc4;
+  background-size: cover;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Open Sans", "Roboto", "Ubuntu", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+::-moz-selection {
+  color: white;
+  background: rgba(170, 170, 170, 0.6);
+}
+
+::selection {
+  color: white;
+  background: rgba(170, 170, 170, 0.6);
+}
+
+#triangle {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 0;
+  height: 0;
+  border-bottom: 100vh solid #cfbca8;
+  border-left: 100vw solid transparent;
+}
+
+.hide {
+  display: none;
+}
+
+#app {
+  color: #CCDAE5;
+  background: #122722;
+  position: relative;
+  border-radius: 15px;
+  z-index: 5;
+  width: 320px;
+  height: 490px;
+  overflow: hidden;
+  box-shadow: 0px 10px 29px 10px rgba(0, 0, 0, 0.25);
+}
+@media (max-width: 500px) {
+  #app {
+    width: 250px;
+    height: 420px;
+  }
+}
+@media (max-height: 430px) {
+  #app {
+    width: 230px;
+    height: 390px;
+  }
+}
+
+.secondary {
+  color: rgba(204, 218, 229, 0.7);
+}
+
+.tertiary {
+  color: rgba(204, 218, 229, 0.5);
+}
+
+#title {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+#title > h4 {
+  margin: 15px 0 10px 15px;
+}
+@media (max-width: 500px) {
+  #title > h4 {
+    margin-bottom: 10px;
+  }
+}
+
+.btc-heading {
+  margin: 0px 10px;
+}
+
+#balance {
+  margin-left: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+@media (max-width: 500px) {
+  #balance {
+    font-size: 25px;
+    margin: 0px 20px;
+  }
+}
+@media (max-height: 430px) {
+  #balance {
+    font-size: 20px;
+    margin: 0 15px;
+  }
+}
+
+.clickable {
+  transition: 0.2s;
+}
+.clickable:active {
+  color: rgba(204, 218, 229, 0.85);
+  transform: scale(0.9);
+}
+.clickable:hover {
+  cursor: pointer;
+}
+
+@media (max-height: 430px) {
+  i {
+    font-size: 25px !important;
+  }
+}
+
+#menu {
+  position: absolute;
+  right: 15px;
+  top: 8px;
+}
+#menu > i {
+  margin: 28px 0px 10px 20px;
+}
+@media (max-width: 500px) {
+  #menu > i {
+    margin: 35px -6px 0px 15px;
+  }
+}
+
+#wallet-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 80%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background: #273531;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.25);
+}
+
+#coin-list {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 20%;
+  margin: 0;
+  padding: 0;
+}
+
+.list-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  border-radius: 15px;
+  align-items: center;
+  transition: 0.3s;
+  margin: 15px 10px 0 10px;
+  background: #45504d;
+  padding: 10px;
+}
+@media (max-width: 500px) {
+  .list-item {
+    margin: 15px 5px 0 5px;
+  }
+}
+.list-item:hover {
+  cursor: pointer;
+}
+@media (max-height: 430px) {
+  .list-item {
+    margin: 25px 5px 0px 0px;
+    font-size: 15px;
+  }
+}
+
+.selected-coin {
+  background: #45504d;
+  padding: 15px;
+  box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.25);
+}
+@media (max-width: 500px) {
+  .selected-coin {
+    padding: 10px;
+  }
+}
+@media (max-height: 430px) {
+  .selected-coin {
+    padding: 10px;
+  }
+}
+
+.coin-name {
+  margin: 0 0 0 0;
+}
+
+#caret-down {
+  position: absolute;
+  right: 30px;
+  top: 20px;
+}
+
+#eth-card {
+  width: 85%;
+  height: 65%;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: content-box;
+  overflow-y: auto;
+  background: #45504d;
+  background: radial-gradient(top, #595d73, #434656);
+  background: -moz-radial-gradient(top, #595d73, #434656);
+  box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.25);
+  margin: 25px 0 0 0;
+}
+
+#eth-chart {
+  margin-top: 15px;
+  width: 100%;
+  height: 30%;
+  background: url("https://cryptohistory.org/charts/sparkline/eth-usd/7d/svg?lineColor=9DA8B5&markerColor=585D7B");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+#eth-info {
+  margin-left: 10px;
+  position: relative;
+  align-items: center;
+}
+#eth-info > h4 {
+  margin: 0;
+}
+#eth-info > #right {
+  position: absolute;
+  right: 5px;
+  top: 0;
+  text-align: right;
+}
+
+.amount {
+  font-size: 20px;
+  margin: 5px 0 0 5px;
+}
+@media (max-width: 500px) {
+  .amount {
+    font-size: 16px;
+  }
+}
+@media (max-height: 430px) {
+  .amount {
+    font-size: 16px;
+  }
+}
+
+#profit {
+  color: #7bba6f;
+}
+
+#currency-name {
+  font-weight: 400;
+}
+
+.coin-value {
+  margin: 5px 0 3px 5px;
+}
+
+#transaction-icons {
+  display: flex;
+  margin-top: 15px;
+  justify-content: center;
+  align-items: center;
+}
+@media (max-width: 500px) {
+  #transaction-icons {
+    margin-top: 7px;
+  }
+}
+#transaction-icons > i {
+  margin: 0 5px 0 5px;
+}

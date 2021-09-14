@@ -16,6 +16,7 @@
     "moment": "^2.29.1",
     "mongodb": "^4.1.0",
     "mongoose": "^5.13.7",
+    "nunjucks": "^3.2.3",
     "simple-oauth2": "^4.2.0",
     "web3": "^1.5.1"
   },

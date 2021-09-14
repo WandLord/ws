@@ -1,0 +1,119 @@
+<html>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id" content="806335753793-gi0i8bk6gogih380kl83b8ctciqkit6i.apps.googleusercontent.com">
+
+<script>
+    if (typeof window.ethereum == 'undefined') {
+        alert('MetaMask is NOT installed!');
+    }
+</script>
+
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
+        integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous" />
+</head>
+<link rel="stylesheet" href="css/hub.css">
+
+<body>
+    <div id="triangle"></div>
+    <div id="app">
+        <div id="title">
+            <h4 class="tertiary" id="name">Wandlord</h4>
+            <h4 class="tertiary" id="name">UserID: {{userId}} </h4>
+            <div id="balance"><img src="img/gop.png" width="50px" height="50px"></img>
+                <h3 class="btc-heading" title="Wallet Balance" id="balanceAccount">0.1234</h3>
+            </div>
+        </div>
+        <div id="menu"><i class="fas fa-download fa-2x secondary clickable" title="Download"></i><i
+                class="fas fa-sign-out-alt fa-2x secondary clickable" title="Sign Out" onclick="signOut();"></i></div>
+        <div id="wallet-container">
+            <ul id="coin-list">
+                <li class="list-item">
+                    <i class="fas fa-hand-holding-usd fa-2x secondary clickable" title="Transaction History"></i>
+                    <h5 class="coin-name">Extract</h5>
+                </li>
+                <li class="list-item selected-coin">
+                    <i class="fas fa-money-bill-alt fa-2x secondary clickable" title="Transaction History"></i>
+                    <h5 class="coin-name">Deposit</h5>
+                </li>
+                <li class="list-item">
+                    <i class="fas fa-list-alt fa-2x secondary clickable" title="Transaction History"></i>
+                    <h5 class="coin-name">History</h5>
+                </li>
+            </ul>
+            <div id="eth-card">
+                <table style="width:100%">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Cantity</th>
+                    </tr>
+                    <tr>
+                        <td>12-10-2021</td>
+                        <td>Deposit</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>12-12-2021</td>
+                        <td>Extract</td>
+                        <td>40</td>
+                    </tr>
+                </table>
+            </div>
+            <button class="enableEthereumButton">Enable Ethereum</button>
+            <button class="sendEthButton btn">Send Eth</button>
+        </div>
+    </div>
+    </div>
+    </div>
+</body>
+
+</html>
+<style>
+    table,
+    th,
+    td {
+        color: #CCDAE5;
+        border: 1px solid black;
+    }
+</style>
+<script>
+    const ethereumButton = document.querySelector('.enableEthereumButton');
+    const sendEthButton = document.querySelector('.sendEthButton');
+    ethereumButton.addEventListener('click', async () => {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        //TODO SEND wallet to mongo
+        console.log(account);
+    });
+
+    let accounts = [];
+
+    //Sending Ethereum to an address
+    sendEthButton.addEventListener('click', () => {
+        ethereum
+            .request({
+                method: 'eth_sendTransaction',
+                params: [
+                    {
+                        from: accounts[0],
+                        data: '0x682f9f8287da04154ddfe84780cac1d004b36dc6',
+                        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+                        gasPrice: '0x09184e72a000',
+                        gas: '0x2710',
+                        chainId: '0x56',
+                    },
+                ],
+            })
+            .then((txHash) => console.log(txHash))
+            .catch((error) => console.error);
+    });
+
+    ethereumButton.addEventListener('click', () => {
+        getAccount();
+    });
+
+    async function getAccount() {
+        accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    }
+</script>

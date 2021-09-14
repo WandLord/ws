@@ -138,7 +138,7 @@ module.exports.createUser = async function (userId) {
     const internalId = MongoDB.createNewId();
     const newUser = {
         _id: internalId,
-        name: Crypto.ofuscateId(internalId.toString()),
+        name: Crypto.encryptUserId(internalId.toString()),
         balance: 0,
         blacklist: false,
         register: new Date().toISOString(),
@@ -272,7 +272,7 @@ module.exports.addCurrencyToUserId = async function(userId, amount){
 
 module.exports.changeNickname = async function (userId, nickname) {
     const user = await getUserData(userId);
-    if(!user || user.name != Crypto.ofuscateId(userId) || nickname.length > 20) return false; 
+    if(!user || user.name != Crypto.encryptUserId(userId) || nickname.length > 20) return false; 
     const quey = { _id: MongoDB.createId(userId) };
     const value = { $set: { name: nickname } };
     return await MongoDB.update(collection_users, quey, value);

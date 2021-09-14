@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const logger = require('./src/utils/Logger');
 const Boss = require('./src/Managers/BossManager');
 const User = require('./src/Managers/UserManager');
@@ -12,6 +12,7 @@ const sessions = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const { ERRORS } = require("./src/utils/Errors");
+const nunjucks = require('nunjucks');
 
 const app = express();
 dotenv.config();
@@ -28,7 +29,12 @@ app.use(sessions({
   secret: process.env.SESSION_SECRET || '',
 }));
 
-app.use(express.static(__dirname + 'public'))
+app.use(express.static(path.join(__dirname, 'public')));
+
+nunjucks.configure(path.join(__dirname, './public'), {
+  autoescape: true,
+  express: app,
+});
 
 function checkUserSession(req, res, next) {
   if (req.session && req.session.userId) {
@@ -44,6 +50,7 @@ async function isValidToken(req, res, next) {
     res.locals.validToken = Token.validateToken(token, req.params.id);
   } catch (e) {
     res.json(response({}, "", ERRORS.TOKEN_VALIDATION.CODE, ERRORS.TOKEN_VALIDATION.MSG))
+    return;
   }
   return next();
 }
@@ -137,13 +144,15 @@ app.get('/auth', async function (req, res) {
 
   await Oauth.validateOauth(options, state);
   session = req.session;
-  session.userId = Crypto.ofuscateId(state);
+  session.userId = Crypto.encryptUserId(state);
   // use in 
   res.redirect('/home');
 });
 
 app.get('/home', checkUserSession, async function (req, res) {
-  res.sendFile(path.join(__dirname, './public', 'hub.html'));
+  res.render('html/hub.html', {
+    userId: req.session.id,
+  });
 });
 
 app.get('/authUrl/:id', async function (req, res) {
