@@ -2,33 +2,27 @@ const elasticsearch = require("elasticsearch");
 const dotenv = require('dotenv');
 dotenv.config();
 
-var client = new elasticsearch.Client({
+const client = new elasticsearch.Client({
   hosts: [
     `http://${process.env.ELASTICSEARCH_USER}:${process.env.ELASTICSEARCH_PASSWORD}@${process.env.ELASTICSEARCH_HOST}`,
   ]
 });
 
-module.exports.logger = function (index, data) {
-  const body = {};
-  body.type = '_doc'
-  body.index = index;
-  body.body = {
-    user: data.user,
-    ip: data.ip,
-    id: data.id,
-    method: data.method,
-    dataIn: data.dataIn,
-    dataOut: data.dataOut,
-    timestamp: Math.floor(Date.now() / 1000),
-    payload: data.payload,
-    state: data.state,
+module.exports.send = function (index, state, data) {
+  const body = {
+    type: '_doc',
+    index: index,
   };
-  send(body);
-}
+  body.body = data;
+  body.body.timestamp = Math.floor(Date.now() / 1000);
+  body.body.state = state;
 
-function send(body) {
   client.index(body,
     function (err, resp, status) {
-      if (err) throw err;
-    });
+      if (err) {
+        console.log("Error in LoggerConnector: ", err, resp, status);
+        process.exit(1);
+      }
+    }
+  );
 }
