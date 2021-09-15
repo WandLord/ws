@@ -229,40 +229,6 @@ class UserManager {
         return await MongoDB.update(collection_users, quey, value);
     }
 
-<<<<<<< Updated upstream
-module.exports.createUser = async function (userId) {
-    const mainWeapon = Weapon.createWeapon();
-    const secondaryWeapon = Weapon.createWeapon();
-    const internalId = MongoDB.createNewId();
-    const newUser = {
-        _id: internalId,
-        name: Crypto.encryptUserId(internalId.toString()),
-        balance: 0,
-        blacklist: false,
-        register: new Date().toISOString(),
-        lastJoin: new Date().toISOString(),
-        fighting: false,
-        skin: global.PARAMS.PLAYER_DEFAULT_SKIN,
-        currentWeapon: mainWeapon[0],
-        refer: global.PARAMS.DEFAULT_REFER,
-        inventory: {
-            [mainWeapon[0]]: mainWeapon[1],
-            [secondaryWeapon[0]]: secondaryWeapon[1],
-        },
-        accounts: {
-            google: userId
-        }
-    };
-    await MongoDB.insert(collection_users, newUser);
-    return formatUserDataForReturn(newUser);
-}
-
-module.exports.getUser = async function (userId) {
-    const user = await getUserData(userId);
-    if (!user) return false;
-    return formatUserDataForReturn(user);
-}
-=======
     async _validateForge(userId, mainWeaponId, secondaryWeaponId) {
         const userData = await getUserData(userId);
         let price = 0;
@@ -271,7 +237,6 @@ module.exports.getUser = async function (userId) {
             price: 0,
             userData
         }
->>>>>>> Stashed changes
 
         const hasEnoughBalance = () => {
             const mainWeapon = userData.inventory[mainWeaponId];
@@ -359,15 +324,6 @@ module.exports.getUser = async function (userId) {
         return await MongoDB.update(collection_users, query, value);
     }
 
-<<<<<<< Updated upstream
-module.exports.changeNickname = async function (userId, nickname) {
-    const user = await getUserData(userId);
-    if(!user || user.name != Crypto.encryptUserId(userId) || nickname.length > 20) return false; 
-    const quey = { _id: MongoDB.createId(userId) };
-    const value = { $set: { name: nickname } };
-    return await MongoDB.update(collection_users, quey, value);
-}
-=======
     _formatUserDataForReturn(userData) {
         delete userData.register;
         delete userData.lastJoin;
@@ -377,7 +333,6 @@ module.exports.changeNickname = async function (userId, nickname) {
         if (userData.refer.toLowerCase() == global.PARAMS.DEFAULT_REFER) {
             userData.refer = "";
         }
->>>>>>> Stashed changes
 
         return userData;
     }

@@ -9,6 +9,7 @@ const client = new elasticsearch.Client({
 });
 
 module.exports.send = function (index, state, data) {
+  console.log("sendingLog");
   const body = {
     type: '_doc',
     index: index,
@@ -19,6 +20,7 @@ module.exports.send = function (index, state, data) {
 
   client.index(body,
     function (err, resp, status) {
+      console.log(status);
       if (err) {
         console.log("Error in LoggerConnector: ", err, resp, status);
         process.exit(1);

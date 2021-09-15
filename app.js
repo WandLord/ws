@@ -1,11 +1,7 @@
-<<<<<<< Updated upstream
-const express = require('express');
-=======
 const express = require("express");
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const sessions = require('express-session');
->>>>>>> Stashed changes
 const logger = require('./src/utils/Logger');
 const Boss = require('./src/Managers/BossManager');
 const User = require('./src/Managers/UserManager');

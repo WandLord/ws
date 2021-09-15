@@ -6,7 +6,7 @@ const Errors = require('../utils/Errors');
 dotenv.config();
 
 const uri = process.env.DATABASE_URI;
-const client = new MongoClient(uri);
+let client = null;
 let db = {};
 
 class MongoConnector {
@@ -66,11 +66,13 @@ class MongoConnector {
 
     async connect() {
         try {
+            client = new MongoClient(uri);
             await client.connect();
             db = client.db(process.env.DATABASE_CLIENT);
             console.log("MongoDB - OK")
         } catch (err) {
-            logger.SystemError({ method: "MongoConnector.connect", data: { _collection, value }, payload: err });
+            console.log("asd");
+            logger.SystemError({ method: "MongoConnector.connect", data: { }, payload: err });
             process.exit(1);
         }
     }
