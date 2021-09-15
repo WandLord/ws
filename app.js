@@ -42,9 +42,9 @@ nunjucks.configure(path.join(__dirname, './public'), {
 
 function checkUserSession(req, res, next) {
   if (req.session && req.session.userId) {
-    next();
+    return next();
   }
-  res.redirect('/');
+  return res.redirect('/');
 }
 
 async function isValidToken(req, res, next) {
@@ -198,12 +198,11 @@ app.get('/auth', traceRequest, async function (req, res) {
   const user = await Oauth.validateOauth(options, state);
   session = req.session;
   session.userId = Crypto.encrypt(user._id.toString());
-  res.redirect('/home');
+  return res.redirect('/home');
 });
 
 app.get('/home', traceRequest, checkUserSession, async function (req, res) {
   const user = await User.getUser(Crypto.decrypt(req.session.userId));
-  console.log(user);
   res.render('html/hub.html', {
     user,
   });
@@ -232,6 +231,14 @@ app.post('/nickname/:id', traceRequest, isValidToken, checkIsNotFighting, update
     res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
   } catch (err) {
     res.json(response(null, null, err.code, err.message));
+  }
+});
+
+app.get('/', (req, res) => {
+  if (req.session && req.session.id) {
+    return res.redirect('/home');
+  } else {
+    res.redirect(process.env.WANDLORD_WEBSITE);
   }
 });
 
