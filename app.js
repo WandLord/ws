@@ -1,14 +1,18 @@
+<<<<<<< Updated upstream
 const express = require('express');
+=======
+const express = require("express");
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const sessions = require('express-session');
+>>>>>>> Stashed changes
 const logger = require('./src/utils/Logger');
 const Boss = require('./src/Managers/BossManager');
 const User = require('./src/Managers/UserManager');
 const Crypto = require('./src/Managers/CryptoManager');
 const MongoDB = require('./src/Connectors/MongoConnector');
 const Token = require('./src/Managers/TokenManager');
-const bodyParser = require('body-parser')
-const cors = require('cors')
 const Oauth = require('./src/Managers/OauthManager');
-const sessions = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');

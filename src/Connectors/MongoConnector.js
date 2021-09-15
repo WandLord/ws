@@ -15,14 +15,12 @@ class MongoConnector {
         try {
             const item = await db.collection(_collection).find(query, fields).toArray();
             if (!item) {
-                logger.SystemError({ method: "MongoConnector.find", dataIn: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
+                logger.SystemError({ method: "MongoConnector.find", data: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
                 throw new Errors.DB_FIND_DEFINITE();
             }
         } catch (err) {
-            if (err instanceof Errors) {
-                throw err;
-            }
-            logger.SystemError({ method: "MongoConnector.find", dataIn: { _collection, query, fields }, payload: err });
+            if (err instanceof Errors) throw err;
+            logger.SystemError({ method: "MongoConnector.find", data: { _collection, query, fields }, payload: err });
             process.exit(1);
         }
     }
@@ -31,15 +29,13 @@ class MongoConnector {
         try {
             const item = await db.collection(_collection).findOne(query, fields);
             if (!item) {
-                logger.SystemError({ method: "MongoConnector.findOne", dataIn: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
+                logger.SystemError({ method: "MongoConnector.findOne", data: { _collection, query, fields }, payload: new Errors.DB_FIND_DEFINITE() });
                 throw new Errors.DB_FIND_DEFINITE();
             }
             return item;
         } catch (err) {
-            if (err instanceof Errors) {
-                throw err;
-            }
-            logger.SystemError({ method: "MongoConnector.findOne", dataIn: { _collection, query, fields }, payload: err });
+            if (err instanceof Errors) throw err;
+            logger.SystemError({ method: "MongoConnector.findOne", data: { _collection, query, fields }, payload: err });
             process.exit(1);
         }
     }
@@ -48,15 +44,13 @@ class MongoConnector {
         try {
             const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
             if (numberOfUpdatedItems === 0) {
-                logger.SystemError({ method: "MongoConnector.update", dataIn: { _collection, query, value }, payload: new Errors.DB_UPDATE_DEFINITE() });
+                logger.SystemError({ method: "MongoConnector.update", data: { _collection, query, value }, payload: new Errors.DB_UPDATE_DEFINITE() });
                 throw new Errors.DB_UPDATE_DEFINITE();
             }
             return true;
         } catch (err) {
-            if (err instanceof Errors) {
-                throw err;
-            }
-            logger.SystemError({ method: "MongoConnector.update", dataIn: { _collection, query, value }, payload: err });
+            if (err instanceof Errors) throw err;
+            logger.SystemError({ method: "MongoConnector.update", data: { _collection, query, value }, payload: err });
             process.exit(1);
         }
     }
@@ -65,7 +59,7 @@ class MongoConnector {
         try {
             return await db.collection(_collection).insertOne(value);
         } catch (err) {
-            logger.SystemError({ method: "MongoConnector.insert", dataIn: { _collection, value }, payload: err });
+            logger.SystemError({ method: "MongoConnector.insert", data: { _collection, value }, payload: err });
             process.exit(1);
         }
     }
@@ -76,7 +70,7 @@ class MongoConnector {
             db = client.db(process.env.DATABASE_CLIENT);
             console.log("MongoDB - OK")
         } catch (err) {
-            logger.SystemError({ method: "MongoConnector.connect", dataIn: { _collection, value }, payload: err });
+            logger.SystemError({ method: "MongoConnector.connect", data: { _collection, value }, payload: err });
             process.exit(1);
         }
     }
@@ -86,7 +80,7 @@ class MongoConnector {
         try {
             response = new ObjectId(id);
         } catch (err) {
-            logger.SystemError({ method: "MongoConnector.CreateId", dataIn: id, payload: new Errors.DB_CREATE_ID() });
+            logger.SystemError({ method: "MongoConnector.CreateId", data: id, payload: new Errors.DB_CREATE_ID() });
             throw new Errors.DB_CREATE_ID();
         }
         return response;

@@ -1,20 +1,18 @@
 const CryptoJS = require('crypto-js/core');
 CryptoJS.Rabbit = require("crypto-js/rabbit");
 
-const dotenv = require('dotenv');
-dotenv.config();
+class CryptoManager{
 
-module.exports.generateId = function (peper) {
-    const sha1 = crypto.createHash('sha1');
-    const strObj = peper + crypto.randomBytes(16);
-
-    return sha1.update(strObj).digest('hex');
+    generateId(peper) {
+        return crypto.createHash('sha1').update(peper + crypto.randomBytes(16)).digest('hex');
+    }
+    encryptUserId(userId) {
+        return CryptoJS.Rabbit.encrypt(userId, process.env.CRYPTO_PRIVATE_KEY);
+    }
+    
+    decryptUserId(encryptedUserId) {
+        return CryptoJS.Rabbit.decrypt(encryptedUserId, process.env.CRYPTO_PRIVATE_KEY);
+    }
 }
 
-module.exports.encryptUserId = function (userId) {
-    return CryptoJS.Rabbit.encrypt(userId, process.env.CRYPTO_PRIVATE_KEY);
-}
-
-module.exports.decryptUserId = function (encryptedUserId) {
-    return CryptoJS.Rabbit.decrypt(encryptedUserId, process.env.CRYPTO_PRIVATE_KEY);
-}
+module.exports = new CryptoManager();

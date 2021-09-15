@@ -1,26 +1,25 @@
 const jwt = require("jsonwebtoken");
-const PARAMS = require('../utils/Constants');
-const ERRORS = require('../utils/Errors');
+const Params = require('../utils/Constants');
+const Errors = require('../utils/Errors');
 
+class TokenManager {
 
-module.exports.createToken = function (id) {
+    createToken(id) {
+        return jwt.sign({ id }, Params.TOKEN_KEY, { expiresIn: Params.TOKEN_EXPIRATION_TIME, });
+    }
 
-    const token = jwt.sign(
-        { id },
-        global.PARAMS.TOKEN_KEY,
-        {
-            expiresIn: global.PARAMS.TOKEN_EXPIRATION_TIME,
+    validateToken(token, id) {
+        try {
+            token = token.replace("Bearer ", "");
+            const decoded = jwt.verify(token, Params.TOKEN_KEY);
+            if (decoded.id == id) return this.createToken(id);
+            logger.SystemError({ method: "TokenManager.validateToken", data: { token, id }, payload: new Errors.TOKEN_VALIDATION() });
+            throw new Errors.TOKEN_VALIDATION();
+        } catch (err) {
+            if (err instanceof Errors) throw err;
+            logger.SystemError({ method: "TokenManager.validateToken", data: { token, id }, payload: err });
+            throw new Errors.TOKEN_VALIDATION();
         }
-    );
-    return token;
-}
-
-module.exports.validateToken = function (token, id) {
-    try {
-        token = token.replace("Bearer ", "");
-        const decoded = jwt.verify(token, global.PARAMS.TOKEN_KEY);
-        if (decoded.id == id) return module.exports.createToken(id);
-    } catch (err) {
-        throw new Error(ERRORS.ERRORS.TOKEN_VALIDATION.MSG);
     }
 }
+module.exports = new TokenManager();

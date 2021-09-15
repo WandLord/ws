@@ -98,5 +98,9 @@ class WandlordError extends Error{
         this.code = 162,
         this.message = 'Unexpected Error CHECKOUT auth'
     }
+    ERROR_REGISTER(){
+        this.code = 0,
+        this.message = 'Unexpected Error on REGISTER'
+    }
 }
 module.exports = new WandlordError();

@@ -20,12 +20,14 @@ class BossManager {
             delete auxBoss.fighting;
             return auxBoss;
         }
-        logger.SystemError({ method: "BossManager.getStatus", payload: err });
+        logger.SystemError({ method: "BossManager.getStatus", data: {actualBoss}, payload: err });
         process.exit(1);
     }
 
     joinPlayer(id, _dps) {
-        if(!fighting.find(id)){
+        if(!fighting.includes(id)){
+            logger.SystemError({ method: "BossManager.getStatus", data: {fighting, id}, payload: err });
+            //TODO LOG POSIBLE HACKER
            throw new Errors.INVALID_JOIN_BATTLE();
         }
         totaldps += _dps;
@@ -34,10 +36,12 @@ class BossManager {
     }
 
     leftPlayer(id, _dps) {
-        const index = fighting.indexOf(id);
-        if (index == -1) {
+        if (fighting.includes(id)) {
+            logger.SystemError({ method: "BossManager.getStatus", data: {fighting, id}, payload: err });
+            //TODO LOG POSIBLE HACKER
             throw new Errors.INVALID_LEFT_BATTLE();
         }
+        const index = fighting.indexOf(id);
         totaldps -= _dps;
         fighting.splice(index, 1);
         actualBoss.players--;
@@ -112,13 +116,12 @@ class BossManager {
         try {
             await this._loadBoss();
             this.run();
+            console.log("Boss - OK");
         } catch (err) {
             logger.SystemError({ method: "BossManager.start", payload: err });
             process.exit(1);
         }
     }
-
-
 
     _sleep(ms) {
         return new Promise((resolve) => {

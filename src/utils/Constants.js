@@ -1,10 +1,10 @@
-global.PARAMS = 
+module.exports = 
 {
-    "FORGE_PRICE": [2.5,3,4,4.5,5],
-    "WEAPON_ICON_RANGE": [0,39],
-    "WEAPON_INCREMENT_FORGE": 5,
-    "WEAPON_DPS_DEFAULT": 12,
-    "WEAPON_RARITY": {
+    FORGE_PRICE: [2.5,3,4,4.5,5],
+    WEAPON_ICON_RANGE: [0,39],
+    WEAPON_INCREMENT_FORGE: 5,
+    WEAPON_DPS_DEFAULT: 12,
+    WEAPON_RARITY: {
         5: "common",
         50: "uncommon",
         100: "rare",
@@ -13,16 +13,16 @@ global.PARAMS =
         5000: "legendary",
         10000: "ascendent"
     },
-    "WEAPON_EXTRACTOR_INC" : 0.125,
-    "WEAPON_MAX_LEVEL": 5,
-    "PLAYER_DEFAULT_SKIN": "default",
-    "TOKEN_KEY": "KEY",
-    "TOKEN_EXPIRATION_TIME": 1000,
-    "DEFAULT_REFER": "wandlord",
-    "REFER_PERCETNAGE": 1,
-    "TOKEN_TO_BURN": 40,
-    "TOKEN_TO_BOSS": 55,
-    "TOKEN_TO_US": 5,
-    "TOKEN_DECIMALS": 8,
+    WEAPON_EXTRACTOR_INC : 0.125,
+    WEAPON_MAX_LEVEL: 5,
+    PLAYER_DEFAULT_SKIN: "default",
+    TOKEN_KEY: "KEY",
+    TOKEN_EXPIRATION_TIME: 1000,
+    DEFAULT_REFER: "wandlord",
+    REFER_PERCETNAGE: 1,
+    TOKEN_TO_BURN: 40,
+    TOKEN_TO_BOSS: 55,
+    TOKEN_TO_US: 5,
+    TOKEN_DECIMALS: 8,
     
 };
