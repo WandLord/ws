@@ -1,17 +1,16 @@
-const CryptoJS = require('crypto-js/core');
-CryptoJS.Rabbit = require("crypto-js/rabbit");
-
+const CryptoJS = require("crypto-js");
 class CryptoManager{
 
     generateId(peper) {
         return crypto.createHash('sha1').update(peper + crypto.randomBytes(16)).digest('hex');
     }
-    encryptUserId(userId) {
-        return CryptoJS.Rabbit.encrypt(userId, process.env.CRYPTO_PRIVATE_KEY);
+    encrypt(userId) {
+        return CryptoJS.AES.encrypt(userId, process.env.CRYPTO_PRIVATE_KEY).toString();
     }
     
-    decryptUserId(encryptedUserId) {
-        return CryptoJS.Rabbit.decrypt(encryptedUserId, process.env.CRYPTO_PRIVATE_KEY);
+    decrypt(encryptedUserId) {
+        const bytes = CryptoJS.AES.decrypt(encryptedUserId, process.env.CRYPTO_PRIVATE_KEY);
+        return bytes.toString(CryptoJS.enc.Utf8);
     }
 }
 

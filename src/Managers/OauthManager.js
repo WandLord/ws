@@ -36,7 +36,7 @@ class OauthManager {
             return authorizationUri;
         } catch (err) {
             if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.generateUrl", data: { id }, payload: new Errors.AUTH_URL() });
+            logger.SystemError({ method: "OauthManager.generateUrl", data: { id }, payload: Errors.AUTH_URL() });
             throw new Errors.AUTH_URL();
         }
 
@@ -50,7 +50,7 @@ class OauthManager {
             const authToken = await client.getToken(options);
             const urlUserInfo = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + authToken.token.access_token;
             const data = JSON.parse((await Got(urlUserInfo)).body);
-            const auxId = userPool.findIndex(item => item.id == id);
+            const auxId = userPool.findIndex(item => item && item.id == id);
             if (auxId == -1) return null;
             userPool[auxId].status = "OK";
             let user = await User.getUserDataByOauth(data.id);
@@ -61,7 +61,7 @@ class OauthManager {
             return user;
         } catch (err) {
             if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.update", data: { options, id }, payload: new Errors.AUTH_VALIDATE() });
+            logger.SystemError({ method: "OauthManager.update", data: { options, id }, payload: Errors.AUTH_VALIDATE() });
             throw new Errors.AUTH_VALIDATE();
         }
 
@@ -79,7 +79,7 @@ class OauthManager {
             return userAux.status;
         } catch (err) {
             if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.checkAuth", data: { id }, payload: new Errors.AUTH_CHECKOUT() });
+            logger.SystemError({ method: "OauthManager.checkAuth", data: { id }, payload: Errors.AUTH_CHECKOUT() });
             throw new Errors.AUTH_CHECKOUT();
         }
     }

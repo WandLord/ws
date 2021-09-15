@@ -13,7 +13,7 @@ class TokenManager {
             token = token.replace("Bearer ", "");
             const decoded = jwt.verify(token, Params.TOKEN_KEY);
             if (decoded.id == id) return this.createToken(id);
-            logger.SystemError({ method: "TokenManager.validateToken", data: { token, id }, payload: new Errors.TOKEN_VALIDATION() });
+            logger.SystemError({ method: "TokenManager.validateToken", data: { token, id }, payload: Errors.TOKEN_VALIDATION() });
             throw new Errors.TOKEN_VALIDATION();
         } catch (err) {
             if (err instanceof Errors) throw err;

@@ -29,14 +29,14 @@ class WeaponManager {
 
     createWeapon() {
         //TODO hablar del tema de las armas
-        var weapon =
+        const weapon =
         {
             dps: global.PARAMS.WEAPON_DPS_DEFAULT,
             icon: _generateRandomIcon(),
             rarity: "common"
         }
         weapon.level = 0;
-        var weaponId = Crypto.generateId(JSON.stringify(weapon));
+        const weaponId = Crypto.generateId(JSON.stringify(weapon));
         weapon.forges = 0;
 
         return [weaponId, weapon];

@@ -1,4 +1,4 @@
-const PARAMS = require('../utils/Constants');
+const Params = require('../utils/Constants');
 const MongoDB = require('../Connectors/MongoConnector');
 const BossManager = require('./BossManager');
 const Weapon = require('./WeaponManager');
@@ -16,7 +16,7 @@ class UserManager {
             const result = await this._validateForge(userId, mainWeaponId, secondayWeaponId);
             if (!result.isValid) {
                 //TODO LOG HACKER
-                logger.SystemError({ method: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: new Errors.INVALID_FORGE() });
+                logger.SystemError({ method: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
                 throw new Errors.INVALID_FORGE();
             }
             Currensy.spend(userId, result.price, "forge", result.userData.refer);
@@ -35,7 +35,7 @@ class UserManager {
             const result = await this._validateExtract(userId, destWeaponId, sourceWeaponId);
             if (!result.isValid) {
                 //TODO LOG HACKER
-                logger.SystemError({ method: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId, result }, payload: new Errors.INVALID_EXTRACT() });
+                logger.SystemError({ method: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId, result }, payload: Errors.INVALID_EXTRACT() });
                 throw new Errors.INVALID_EXTRACT();
             }
             const dps = Weapon.extract(result.userData.inventory[sourceWeaponId]);
@@ -63,7 +63,7 @@ class UserManager {
         try {
             const isEquipValidated = await this._validateEquip(id, weapon);
             if (!isEquipValidated) {
-                logger.SystemError({ method: "UserManager.equipWeapon", data: { id, weapon }, payload: new Errors.INVALID_EQUIP() });
+                logger.SystemError({ method: "UserManager.equipWeapon", data: { id, weapon }, payload: Errors.INVALID_EQUIP() });
                 throw new Errors.INVALID_EQUIP();
             }
             var query = { _id: MongoDB.createId(id) };
@@ -84,15 +84,15 @@ class UserManager {
             const internalId = MongoDB.createNewId();
             const newUser = {
                 _id: internalId,
-                name: Crypto.ofuscateId(internalId.toString()),
+                name: Crypto.encrypt(internalId.toString()),
                 balance: 0,
                 blacklist: false,
                 register: new Date().toISOString(),
                 lastJoin: new Date().toISOString(),
                 fighting: false,
-                skin: global.PARAMS.PLAYER_DEFAULT_SKIN,
+                skin: Params.PLAYER_DEFAULT_SKIN,
                 currentWeapon: mainWeapon[0],
-                refer: global.PARAMS.DEFAULT_REFER,
+                refer: Params.DEFAULT_REFER,
                 inventory: {
                     [mainWeapon[0]]: mainWeapon[1],
                     [secondaryWeapon[0]]: secondaryWeapon[1],
@@ -108,7 +108,6 @@ class UserManager {
             logger.SystemError({ method: "UserManager.createUser", data: { userId }, payload: err });
             throw new Errors.ERROR_REGISTER();
         }
-
     }
 
     async login(userId) {
@@ -128,16 +127,16 @@ class UserManager {
     async getUserDataByOauth(userId) {
         const field = "accounts.google"
         const query = { [field]: userId };
-        const user = await MongoDB.findOne(collection_users, query);
+        const user = await MongoDB.findOne(collection_users, query, {});
         if (!user) return false;
-        return formatUserDataForReturn(user);
+        return this._formatUserDataForReturn(user);
     }
 
     async joinBattle(_user) {
-        const user = await getUserData(_user);
+        const user = await this.getUserData(_user);
         try {
             if (!user) {
-                logger.SystemError({ method: "UserManager.joinBattle", data: { _user }, payload: new Errors.INVALID_JOIN_BATTLE });
+                logger.SystemError({ method: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE });
                 throw new Errors.INVALID_JOIN_BATTLE();
             }
             const boss = BossManager.getStatus();
@@ -148,7 +147,7 @@ class UserManager {
             const query = { layer: boss.layer };
             const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
             if (!statusChanged) {
-                logger.SystemError({ method: "UserManager.joinBattle", data: { _user, user }, payload: new Errors.INVALID_JOIN_BATTLE });
+                logger.SystemError({ method: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE });
                 throw new Errors.INVALID_JOIN_BATTLE();
             }
             const isUpdated = await MongoDB.update(collection_boss, query, value);
@@ -165,20 +164,20 @@ class UserManager {
     async leftBattle(_user) {
         try {
             const boss = BossManager.getStatus();
-            let bossUserData = await findUserInBoss(boss.layer, _user);
+            let bossUserData = await this._findUserInBoss(boss.layer, _user);
             if (!bossUserData){
-                logger.SystemError({ method: "UserManager.leftBattle", data: { _user }, payload: new Errors.INVALID_LEFT_BATTLE });
+                logger.SystemError({ method: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE });
                 throw new Errors.INVALID_LEFT_BATTLE();
             }
             bossUserData = bossUserData.fighting[_user];
-            const statusChanged = await changeFightingStatus(_user, false);
+            const statusChanged = await this._changeFightingStatus(_user, false);
             const userField1 = "fighting." + _user + ".totalDPS";
             const userField2 = "fighting." + _user + ".fight";
             const quey = { layer: boss.layer };
             const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
             const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
             if (!statusChanged) {
-                logger.SystemError({ method: "UserManager.leftBattle", data: { _user, bossUserData }, payload: new Errors.INVALID_LEFT_BATTLE });
+                logger.SystemError({ method: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE });
                 throw new Errors.INVALID_LEFT_BATTLE();
             }
             const isUpdated = await MongoDB.update(collection_boss, quey, value);
@@ -200,14 +199,14 @@ class UserManager {
 
     async refer(userId, code) {
         const user = await getUserData(userId);
-        const userRefer = await module.exports.getUserDataByName(code);
+        const userRefer = await this.getUserDataByName(code);
         if (!user || user.name == code || !userRefer){
-            logger.SystemError({ method: "UserManager.refer", data: { userId, code }, payload: new Errors.INVALID_REFER });
+            logger.SystemError({ method: "UserManager.refer", data: { userId, code }, payload: Errors.INVALID_REFER });
             throw new Errors.INVALID_REFER(); 
         }
-        const quey = { _id: MongoDB.createId(userId) };
+        const query = { _id: MongoDB.createId(userId) };
         const value = { $set: { refer: code } };
-        return await MongoDB.update(collection_users, quey, value);
+        return await MongoDB.update(collection_users, query, value);
     }
 
     async addCurrencyToUserId(userId, amount) {
@@ -222,15 +221,21 @@ class UserManager {
     }
 
     async changeNickname(userId, nickname) {
-        const user = await getUserData(userId);
+        const user = await this.getUserData(userId);
         if (!user || user.name != Crypto.ofuscateId(userId) || nickname.length > 20) return false;
         const quey = { _id: MongoDB.createId(userId) };
         const value = { $set: { name: nickname } };
         return await MongoDB.update(collection_users, quey, value);
     }
 
+    async getUser(userId) {
+        const user = await this.getUserData(userId);
+        if (!user) return false;
+        return this._formatUserDataForReturn(user);
+    }
+
     async _validateForge(userId, mainWeaponId, secondaryWeaponId) {
-        const userData = await getUserData(userId);
+        const userData = await this.getUserData(userId);
         let price = 0;
         const result = {
             isValid: false,
@@ -243,7 +248,7 @@ class UserManager {
             const secondaryWeapon = userData.inventory[secondaryWeaponId];
             mainWeapon.forges = mainWeapon.forges > 4 ? 4 : mainWeapon.forges;
             secondaryWeapon.forges = secondaryWeapon.forges > 4 ? 4 : secondaryWeapon.forges;
-            price = global.PARAMS.FORGE_PRICE[mainWeapon.forges] + global.PARAMS.FORGE_PRICE[secondaryWeapon.forges];
+            price = Params.FORGE_PRICE[mainWeapon.forges] + Params.FORGE_PRICE[secondaryWeapon.forges];
             if (price > result.balance) return result;
         }
 
@@ -272,7 +277,7 @@ class UserManager {
             userData.currentWeapon == sourceWeaponId ||
             destWeaponId == sourceWeaponId ||
             !userData.inventory.hasOwnProperty(destWeaponId) ||
-            !(userData.inventory[destWeaponId].level < global.PARAMS.WEAPON_MAX_LEVEL) ||
+            !(userData.inventory[destWeaponId].level < Params.WEAPON_MAX_LEVEL) ||
             !userData.inventory.hasOwnProperty(sourceWeaponId)
         ) {
             return response;
@@ -283,7 +288,7 @@ class UserManager {
     }
 
     async _validateEquip(userId, weapon) {
-        const userData = await getUserData(userId);
+        const userData = await this.getUserData(userId);
         return userData.inventory.hasOwnProperty(weapon) ? true : false;
     }
 
@@ -305,10 +310,17 @@ class UserManager {
         return await MongoDB.update(collection_users, query, value);
     }
 
-    async _getUser(userId) {
-        const user = await getUserData(userId);
-        if (!user) return false;
-        return formatUserDataForReturn(user);
+    _formatUserDataForReturn(userData) {
+        delete userData.register;
+        delete userData.lastJoin;
+        delete userData.accounts;
+        delete userData.blacklist;
+        delete userData.ip;
+        if (userData.refer.toLowerCase() == Params.DEFAULT_REFER) {
+            userData.refer = "";
+        }
+
+        return userData;
     }
 
     async _findUserInBoss(_layer, userId) {
@@ -324,17 +336,5 @@ class UserManager {
         return await MongoDB.update(collection_users, query, value);
     }
 
-    _formatUserDataForReturn(userData) {
-        delete userData.register;
-        delete userData.lastJoin;
-        delete userData.accounts;
-        delete userData.blacklist;
-        delete userData.ip;
-        if (userData.refer.toLowerCase() == global.PARAMS.DEFAULT_REFER) {
-            userData.refer = "";
-        }
-
-        return userData;
-    }
 }
 module.exports = new UserManager();

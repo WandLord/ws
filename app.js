@@ -141,16 +141,15 @@ app.get('/auth', async function (req, res) {
   const options = {
     code,
   };
-
   await Oauth.validateOauth(options, state);
   session = req.session;
-  session.userId = Crypto.encryptUserId(state);
+  session.userId = Crypto.encrypt(state);
   // use in 
   res.redirect('/home');
 });
 
 app.get('/home', checkUserSession, async function (req, res) {
-  const user = await User.getUser(Crypto.decryptUserId(req.session.userId));
+  const user = await User.getUser(Crypto.decrypt(req.session.userId));
   res.render('html/hub.html', {
     user,
   });
