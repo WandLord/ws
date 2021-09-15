@@ -190,19 +190,20 @@ app.post('/refer/:id', traceRequest, isValidToken, checkIsNotFighting, updateLas
   }
 });
 
-app.get('/auth', async function (req, res) {
+app.get('/auth', traceRequest, async function (req, res) {
   const { code, state } = req.query;
   const options = {
     code,
   };
-  await Oauth.validateOauth(options, state);
+  const user = await Oauth.validateOauth(options, state);
   session = req.session;
-  session.userId = Crypto.encrypt(state);
+  session.userId = Crypto.encrypt(user._id.toString());
   res.redirect('/home');
 });
 
 app.get('/home', traceRequest, checkUserSession, async function (req, res) {
   const user = await User.getUser(Crypto.decrypt(req.session.userId));
+  console.log(user);
   res.render('html/hub.html', {
     user,
   });

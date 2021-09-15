@@ -51,8 +51,8 @@ class MongoConnector {
         try {
             const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
             if (numberOfUpdatedItems === 0) {
-                logger.SystemError({ service: "MongoConnector.update", data: { _collection, query, value }, payload: Errors.DB_UPDATE_DEFINITE() });
-                throw Errors.DB_UPDATE_DEFINITE();
+                //logger.SystemError({ service: "MongoConnector.update", data: { _collection, query, value }, payload: Errors.DB_UPDATE_DEFINITE() });
+                //throw Errors.DB_UPDATE_DEFINITE();
             }
             return true;
         } catch (err) {
