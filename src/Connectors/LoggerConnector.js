@@ -24,7 +24,7 @@ module.exports.send = function (index, state, data, stopApp) {
   client.index(body,
     function (err, resp, status) {
       if (err) {
-        console.log("Error in LoggerConnector: ", err, resp, status);
+        console.log("Error in LoggerConnector: ", err, resp);
         process.exit(1);
       }
       if (stopApp) process.exit(1);

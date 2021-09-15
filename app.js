@@ -85,8 +85,7 @@ function traceRequest(req, res, next) {
 }
 
 async function updateLastJoin(req, res, next) {
-  let id = req.params.id;
-  await User.UpdateLastJoin(id, ip);
+  await User.UpdateLastJoin(id, req.ip,);
   next();
 }
 
