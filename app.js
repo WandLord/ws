@@ -118,7 +118,7 @@ app.get('/statusboss/:id', traceRequest, isValidToken, updateLastJoin, function 
   }
 });
 
-app.get('/refreshdata/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
+app.get('/refreshdata/:id', traceRequest, isValidToken, updateLastJoin, async function (req, res) {
   try {
     const user = await User.refreshData(req.params.id);
     if (!user) throw Errors.INVALID_LOGIN();
