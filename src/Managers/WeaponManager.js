@@ -6,8 +6,8 @@ class WeaponManager {
 
     forgeWeapon(_weapon1, _weapon2) {
         try {
-            var _dps = ((_weapon1.dps + _weapon2.dps) / 2) + global.PARAMS.WEAPON_INCREMENT_FORGE;
-            var newWeapon = {
+            const _dps = ((_weapon1.dps + _weapon2.dps) / 2) + global.PARAMS.WEAPON_INCREMENT_FORGE;
+            const newWeapon = {
                 dps: _dps,
                 icon: _generateRandomIcon(),
                 rarity: _getRarity(_dps)
@@ -17,8 +17,8 @@ class WeaponManager {
             newWeapon.level = 0;
             return { weaponId, newWeapon };
         } catch (err) {
-            logger.SystemError({ method: "WeaponManager.forgeWeapon", data: { _weapon1, _weapon2 }, payload: err });
-            throw new Errors.INVALID_FORGE();
+            logger.SystemError({ service: "WeaponManager.forgeWeapon", data: { _weapon1, _weapon2 }, payload: err });
+            throw Errors.INVALID_FORGE();
         }
     }
 
@@ -47,7 +47,7 @@ class WeaponManager {
     }
 
     _getRarity(dps) {
-        for (var k in global.PARAMS.WEAPON_RARITY) {
+        for (let k in global.PARAMS.WEAPON_RARITY) {
             if (dps < k) return global.PARAMS.WEAPON_RARITY[k];
         }
         return global.PARAMS.WEAPON_RARITY[10000];

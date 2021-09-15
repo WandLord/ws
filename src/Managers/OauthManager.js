@@ -35,9 +35,9 @@ class OauthManager {
             userPool.push({ id, status: "waiting", createdAt: new Date() });
             return authorizationUri;
         } catch (err) {
-            if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.generateUrl", data: { id }, payload: Errors.AUTH_URL() });
-            throw new Errors.AUTH_URL();
+            if (!!err.code) throw err;
+            logger.SystemError({ service: "OauthManager.generateUrl", data: { id }, payload: Errors.AUTH_URL() });
+            throw Errors.AUTH_URL();
         }
 
     }
@@ -60,9 +60,9 @@ class OauthManager {
             userPool[auxId].data = user;
             return user;
         } catch (err) {
-            if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.update", data: { options, id }, payload: Errors.AUTH_VALIDATE() });
-            throw new Errors.AUTH_VALIDATE();
+            if (!!err.code) throw err;
+            logger.SystemError({ service: "OauthManager.update", data: { options, id }, payload: Errors.AUTH_VALIDATE() });
+            throw Errors.AUTH_VALIDATE();
         }
 
     }
@@ -78,9 +78,9 @@ class OauthManager {
             }
             return userAux.status;
         } catch (err) {
-            if (err instanceof Errors) throw err;
-            logger.SystemError({ method: "OauthManager.checkAuth", data: { id }, payload: Errors.AUTH_CHECKOUT() });
-            throw new Errors.AUTH_CHECKOUT();
+            if (!!err.code) throw err;
+            logger.SystemError({ service: "OauthManager.checkAuth", data: { id }, payload: Errors.AUTH_CHECKOUT() });
+            throw Errors.AUTH_CHECKOUT();
         }
     }
 
@@ -90,8 +90,7 @@ class OauthManager {
                 if (Moment(auth.createdAt).add(process.env.AUTH_DURATION, 'seconds') >= Moment()) object.splice(index, 1);
             });
         } catch (err) {
-            logger.SystemError({ method: "OauthManager._checkAuthAlive", data: { userPool }, payload: err });
-            process.exit(1);
+            logger.SystemCritical({ service: "OauthManager._checkAuthAlive", data: { userPool }, payload: err });
         }
     }
 }

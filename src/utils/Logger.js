@@ -1,25 +1,30 @@
 const logger = require("../Connectors/LoggerConnector");
-
-const systemIndex = "wandlord-system";
-const wsIndex = "wandlord-ws";
-const transactionsIndex = "wandlord-transactions";
+const dotenv = require('dotenv');
+dotenv.config();
 
 class Logger {
 
     SystemInfo(data) {
-        logger.send(systemIndex, "OK", data);
+        logger.send(process.env.ELASTICSEARCH_INDEX_SYSTEM, "OK", data, false);
     }
 
     SystemError(data) {
-        logger.send(systemIndex, "KO", data);
+        logger.send(process.env.ELASTICSEARCH_INDEX_SYSTEM, "KO", data, false);
+    }
+    
+    SystemCritical(data){
+        logger.send(process.env.ELASTICSEARCH_INDEX_SYSTEM, "CRIT", data, true);
     }
 
     Info(data) {
-        logger.send(wsIndex, "OK", data);
+        logger.send(process.env.ELASTICSEARCH_INDEX_WS, "OK", data, false);
     }
 
     Error(data) {
-        logger.send(wsIndex, "KO", data);
+        logger.send(process.env.ELASTICSEARCH_INDEX_WS, "KO", data, false);
+    }
+    Critical(data){
+        logger.send(process.env.ELASTICSEARCH_INDEX_WS, "CRIT", data, true);
     }
 }
 module.exports = new Logger();

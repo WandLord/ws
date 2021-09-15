@@ -6,7 +6,6 @@ const collection_data = "data";
 class CurrencyManager {
     //TODO REFACTOR
     async spend(userId, price, on, referNickName) {
-        console.log("Spending");
         price = Number(price);
         const referUser = await User.getUserDataByName(referNickName);
         const refer = Number(((price / 100) * Params.REFER_PERCETNAGE).toFixed(Params.TOKEN_DECIMALS));

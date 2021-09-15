@@ -1,5 +1,6 @@
 const MongoDB = require('../Connectors/MongoConnector');
 const Errors = require('../utils/Errors');
+const logger = require('../utils/Logger');
 
 const collection_boss = "boss";
 let actualBoss = {};
@@ -20,15 +21,14 @@ class BossManager {
             delete auxBoss.fighting;
             return auxBoss;
         }
-        logger.SystemError({ method: "BossManager.getStatus", data: {actualBoss}, payload: err });
-        process.exit(1);
+        logger.SystemCritical({ service: "BossManager.getStatus", data: {actualBoss}, payload: err });
     }
 
     joinPlayer(id, _dps) {
         if(!fighting.includes(id)){
-            logger.SystemError({ method: "BossManager.getStatus", data: {fighting, id}, payload: err });
+            logger.SystemError({ service: "BossManager.getStatus", data: {fighting, id}, payload: err });
             //TODO LOG POSIBLE HACKER
-           throw new Errors.INVALID_JOIN_BATTLE();
+           throw Errors.INVALID_JOIN_BATTLE();
         }
         totaldps += _dps;
         fighting.push(id);
@@ -37,9 +37,9 @@ class BossManager {
 
     leftPlayer(id, _dps) {
         if (fighting.includes(id)) {
-            logger.SystemError({ method: "BossManager.getStatus", data: {fighting, id}, payload: err });
+            logger.SystemError({ service: "BossManager.getStatus", data: {fighting, id}, payload: err });
             //TODO LOG POSIBLE HACKER
-            throw new Errors.INVALID_LEFT_BATTLE();
+            throw Errors.INVALID_LEFT_BATTLE();
         }
         const index = fighting.indexOf(id);
         totaldps -= _dps;
@@ -50,8 +50,8 @@ class BossManager {
     async _battleEnd() {
         actualBoss.enable = false;
         totaldps = 0;
-        var query = { layer: actualBoss.layer };
-        var order = {};
+        const query = { layer: actualBoss.layer };
+        const order = {};
         MongoDB.findOne(collection_boss, query, order, function (result) {
             auxBoss = result;
         });
@@ -59,8 +59,8 @@ class BossManager {
     }
 
     async _loadBoss() {
-        var query = { enable: true };
-        var order = { projection: { fighting: 0 } };
+        const query = { enable: true };
+        const order = { projection: { fighting: 0 } };
         const newBoss = await MongoDB.findOne(collection_boss, query, order);
 
         if (newBoss.actHP <= 0) {
@@ -74,11 +74,11 @@ class BossManager {
     }
 
     async _loadDPS(id) {
-        var query = { _id: id };
-        var order = {};
+        const query = { _id: id };
+        const order = {};
         const boss = await MongoDB.findOne(collection_boss, query, order);
         Object.keys(boss.fighting).forEach(function (key) {
-            var user = boss.fighting[key];
+            const user = boss.fighting[key];
             if (user.fight) {
                 fighting.push(key);
                 totaldps += user.dps;
@@ -89,8 +89,8 @@ class BossManager {
     async _updateBossData() {
         if (!updatingData) {
             updatingData = true;
-            var query = { enable: true };
-            var value = { $set: { actHP: actualBoss.actHP } };
+            const query = { enable: true };
+            const value = { $set: { actHP: actualBoss.actHP } };
             await MongoDB.update(collection_boss, query, value);
             updatingData = false;
         }
@@ -107,8 +107,7 @@ class BossManager {
                 }
             }
         } catch (err) {
-            logger.SystemError({ method: "BossManager.run", payload: err });
-            process.exit(1);
+            logger.SystemCritical({ service: "BossManager.run", payload: err });
         }
     }
 
@@ -118,8 +117,7 @@ class BossManager {
             this.run();
             console.log("Boss - OK");
         } catch (err) {
-            logger.SystemError({ method: "BossManager.start", payload: err });
-            process.exit(1);
+            logger.SystemError({ service: "BossManager.start", payload: err });
         }
     }
 

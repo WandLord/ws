@@ -1,5 +1,7 @@
 const elasticsearch = require("elasticsearch");
 const dotenv = require('dotenv');
+const httpContext = require('express-http-context');
+
 dotenv.config();
 
 const client = new elasticsearch.Client({
@@ -8,23 +10,25 @@ const client = new elasticsearch.Client({
   ]
 });
 
-module.exports.send = function (index, state, data) {
-  console.log("sendingLog");
+module.exports.send = function (index, state, data, stopApp) {
   const body = {
     type: '_doc',
     index: index,
   };
   body.body = data;
-  body.body.timestamp = Math.floor(Date.now() / 1000);
+  body.body.data = JSON.stringify(data.data, null, '\t');
+  body.body.id = httpContext.get('uuid');
+  body.body.timestamp = Date.now();
+  if(body.payload) body.body.payload =   body.body.payload;
   body.body.state = state;
-
   client.index(body,
     function (err, resp, status) {
-      console.log(status);
       if (err) {
         console.log("Error in LoggerConnector: ", err, resp, status);
         process.exit(1);
       }
+      if (stopApp) process.exit(1);
     }
   );
+
 }
