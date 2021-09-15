@@ -52,9 +52,9 @@ async function isValidToken(req, res, next) {
   try {
     res.locals.validToken = Token.validateToken(token, req.params.id);
   } catch (err) {
-    res.json(response({}, "", err.code, err.message))
+    return res.json(response({}, "", err.code, err.message))
   }
-  next();
+  return next();
 }
 
 function traceRequest(req, res, next) {
@@ -81,13 +81,13 @@ function traceRequest(req, res, next) {
 
   }
   logger.Info(data);
-  next();
+  return next();
 }
 
 async function updateLastJoin(req, res, next) {
   let id = req.params.id;
   await User.UpdateLastJoin(id, req.ip);
-  next();
+  return next();
 }
 
 function checkIsFighting(req, res, next) {
@@ -103,18 +103,18 @@ app.get('/login/:id', traceRequest, async function (req, res) {
     const id = req.params.id;
     const user = await User.login(id);
     if (!user) throw Errors.INVALID_LOGIN();
-    res.json(response(user, Token.createToken(id), 200, ""));
+    return res.json(response(user, Token.createToken(id), 200, ""));
   } catch (err) {
-    res.json(response({}, "", err.code, err.message))
+    return res.json(response({}, "", err.code, err.message))
   }
 
 });
 
 app.get('/statusboss/:id', traceRequest, isValidToken, updateLastJoin, function (req, res) {
   try {
-    res.json(response(Boss.getStatus(), res.locals.validToken, 200, ""));
+    return res.json(response(Boss.getStatus(), res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -122,27 +122,27 @@ app.get('/refreshdata/:id', traceRequest, isValidToken, updateLastJoin, async fu
   try {
     const user = await User.refreshData(req.params.id);
     if (!user) throw Errors.INVALID_LOGIN();
-    res.json(response(user, res.locals.validToken, 200, ""));
+    return res.json(response(user, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response({}, "", err.code, err.message))
+    return res.json(response({}, "", err.code, err.message))
   }
 });
 
 app.get('/joinbattle/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   try {
     const userHasJoinedBattle = await User.joinBattle(req.params.id);
-    res.json(response(userHasJoinedBattle, res.locals.validToken, 200, ""));
+    return res.json(response(userHasJoinedBattle, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response({}, "", err.code, err.message))
+    return res.json(response({}, "", err.code, err.message))
   }
 });
 
 app.get('/leftBattle/:id', traceRequest, isValidToken, checkIsFighting, updateLastJoin, async function (req, res) {
   try {
     const userHasLeftBattle = await User.leftBattle(req.params.id);
-    res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
+    return res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response({}, "", err.code, err.message))
+    return res.json(response({}, "", err.code, err.message))
   }
 });
 
@@ -152,9 +152,9 @@ app.post('/forge/:id', traceRequest, isValidToken, checkIsNotFighting, updateLas
   try {
     const newWeapon = await User.forge(req.params.id, mainWeaponId, secondaryWeaponId);
     if (!newWeapon) throw Errors.INVALID_FORGE();
-    res.json(response(newWeapon, res.locals.validToken, 200, ""));
+    return res.json(response(newWeapon, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -165,9 +165,9 @@ app.post('/extract/:id', traceRequest, isValidToken, checkIsNotFighting, updateL
     const sourceWeapon = req.body.sourceWeapon;
     const newWeapon = await User.extract(req.params.id, destWeapon, sourceWeapon);
     if (!newWeapon) throw Errors.INVALID_EXTRACT();
-    res.json(response(newWeapon, res.locals.validToken, 200, ""));
+    return res.json(response(newWeapon, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -176,17 +176,17 @@ app.post('/equip/:id', traceRequest, isValidToken, checkIsNotFighting, updateLas
     const weapon = req.body.weapon;
     const isEquippedWeapon = await User.equipWeapon(req.params.id, weapon);
     if (isEquippedWeapon) throw Errors.INVALID_EQUIP();
-    res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
+    return res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
 app.post('/refer/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   try {
-    res.json(response(await User.refer(req.params.id, req.body.code), res.locals.validToken, 200, ""));
+    return res.json(response(await User.refer(req.params.id, req.body.code), res.locals.validToken, 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -203,16 +203,16 @@ app.get('/auth', traceRequest, async function (req, res) {
 
 app.get('/home', traceRequest, checkUserSession, async function (req, res) {
   const user = await User.getUser(Crypto.decrypt(req.session.userId));
-  res.render('html/hub.html', {
+  return res.render('html/hub.html', {
     user,
   });
 });
 
 app.get('/authUrl/:id', traceRequest, async function (req, res) {
   try {
-    res.status(200).json(response(await Oauth.generateUrl(req.params.id), "", 200, ""));
+    return res.status(200).json(response(await Oauth.generateUrl(req.params.id), "", 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -220,17 +220,17 @@ app.get('/checkAuth/:id', traceRequest, async function (req, res) {
   try {
     const user = await Oauth.checkAuth(req.params.id);
     if (!user) throw Errors.ERROR_ATH_CHECKOUT();
-    res.json(response(user, Token.createToken(user._id), 200, ""));
+    return res.json(response(user, Token.createToken(user._id), 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
 app.post('/nickname/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   try {
-    res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
+    return res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
   } catch (err) {
-    res.json(response(null, null, err.code, err.message));
+    return res.json(response(null, null, err.code, err.message));
   }
 });
 
@@ -238,7 +238,7 @@ app.get('/', (req, res) => {
   if (req.session && req.session.id) {
     return res.redirect('/home');
   } else {
-    res.redirect(process.env.WANDLORD_WEBSITE);
+    return res.redirect(process.env.WANDLORD_WEBSITE);
   }
 });
 
