@@ -135,20 +135,16 @@ class UserManager {
     async joinBattle(_user) {
         try {
             const user = await this.getUserData(_user);
-            console.log("a");
             if (!user) {
-                console.log("aa");
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
             const boss = BossManager.getStatus();
             const statusChanged = await this._changeFightingStatus(_user, true);
             if (!statusChanged) {
-                console.log("bb");
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
-            console.log("b");
             const userField1 = "fighting." + _user + ".dps";
             const userField2 = "fighting." + _user + ".fight";
             const userField3 = "fighting." + _user + ".lastJoin";
@@ -157,15 +153,12 @@ class UserManager {
 
             const isUpdated = await MongoDB.update(collection_boss, query, value);
             if (!isUpdated) {
-                console.log("cc");
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
             BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
-            console.log("d");
             return isUpdated;
         } catch (err) {
-            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: err });
             throw Errors.INVALID_JOIN_BATTLE();
@@ -175,11 +168,9 @@ class UserManager {
 
     async leftBattle(_user) {
         try {
-            console.log("a");
             const boss = BossManager.getStatus();
             let bossUserData = await this._findUserInBoss(boss._id, _user);
             if (!bossUserData){
-                console.log("aa");
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
@@ -188,7 +179,6 @@ class UserManager {
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
-            console.log("b");
             bossUserData = bossUserData.fighting[_user];
             const userField1 = "fighting." + _user + ".totalDPS";
             const userField2 = "fighting." + _user + ".fight";
@@ -198,15 +188,12 @@ class UserManager {
    
             const isUpdated = await MongoDB.update(collection_boss, query, value);
             if (!isUpdated) {
-                console.log("cc");
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
             BossManager.leftPlayer(_user, bossUserData.dps);
-            console.log("d");
             return isUpdated;
         } catch (err) {
-            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: err });
             throw Errors.INVALID_JOIN_BATTLE();
@@ -224,7 +211,7 @@ class UserManager {
         const user = await getUserData(userId);
         const userRefer = await this.getUserDataByName(code);
         if (!user || user.name == code || !userRefer){
-            logger.SystemError({ service: "UserManager.refer", data: { userId, code }, payload: Errors.INVALID_REFER });
+            logger.SystemError({ service: "UserManager.refer", data: { userId, code }, payload: Errors.INVALID_REFER() });
             throw Errors.INVALID_REFER(); 
         }
         const query = { _id: MongoDB.createId(userId) };
@@ -245,7 +232,7 @@ class UserManager {
 
     async changeNickname(userId, nickname) {
         const user = await this.getUserData(userId);
-        if (!user || user.name != Crypto.ofuscateId(userId) || nickname.length > 20) return false;
+        if (!user || user.name != Crypto.generateId(userId) || nickname.length > 20) return false;
         const quey = { _id: MongoDB.createId(userId) };
         const value = { $set: { name: nickname } };
         return await MongoDB.update(collection_users, quey, value);
