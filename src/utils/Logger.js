@@ -23,6 +23,11 @@ class Logger {
     Error(data) {
         logger.send(process.env.ELASTICSEARCH_INDEX_WS, "KO", data, false);
     }
+    
+    Hack(data) {
+        logger.send(process.env.ELASTICSEARCH_INDEX_WS, "HACK", data, false);
+    }
+
     Critical(data){
         logger.send(process.env.ELASTICSEARCH_INDEX_WS, "CRIT", data, true);
     }

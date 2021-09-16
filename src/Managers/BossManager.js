@@ -27,8 +27,7 @@ class BossManager {
 
     joinPlayer(id, _dps) {
         if(fighting.includes(id)){
-            logger.SystemError({ service: "BossManager.joinPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
-            //TODO LOG POSIBLE HACKER
+            logger.Hack({ service: "BossManager.joinPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
            throw Errors.INVALID_JOIN_BATTLE();
         }
         totaldps += _dps;
@@ -38,8 +37,7 @@ class BossManager {
 
     leftPlayer(id, _dps) {
         if (!fighting.includes(id)) {
-            logger.SystemError({ service: "BossManager.leftPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
-            //TODO LOG POSIBLE HACKER
+            logger.Hack({ service: "BossManager.leftPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
             throw Errors.INVALID_LEFT_BATTLE();
         }
         const index = fighting.indexOf(id);

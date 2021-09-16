@@ -16,7 +16,7 @@ class UserManager {
         try {
             const result = await this._validateForge(userId, mainWeaponId, secondayWeaponId);
             if (!result.isValid) {
-                logger.SystemError({ service: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
+                logger.Hack({ service: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
                 throw Errors.INVALID_FORGE();
             }
             //Currensy.spend(userId, result.price, "forge", result.userData.refer);
@@ -34,8 +34,7 @@ class UserManager {
         try {
             const result = await this._validateExtract(userId, destWeaponId, sourceWeaponId);
             if (!result.isValid) {
-                //TODO LOG HACKER
-                logger.SystemError({ service: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId, result }, payload: Errors.INVALID_EXTRACT() });
+                logger.Hack({ service: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId, result }, payload: Errors.INVALID_EXTRACT() });
                 throw Errors.INVALID_EXTRACT();
             }
             const dps = Weapon.extract(result.userData.inventory[sourceWeaponId]);
@@ -63,7 +62,7 @@ class UserManager {
         try {
             const isEquipValidated = await this._validateEquip(id, weapon);
             if (!isEquipValidated) {
-                logger.SystemError({ service: "UserManager.equipWeapon", data: { id, weapon }, payload: Errors.INVALID_EQUIP() });
+                logger.Hack({ service: "UserManager.equipWeapon", data: { id, weapon }, payload: Errors.INVALID_EQUIP() });
                 throw Errors.INVALID_EQUIP();
             }
             const query = { _id: MongoDB.createId(id) };
@@ -170,7 +169,7 @@ class UserManager {
         try {
             const boss = BossManager.getStatus();
             let bossUserData = await this._findUserInBoss(boss._id, _user);
-            if (!bossUserData){
+            if (!bossUserData) {
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
@@ -185,7 +184,7 @@ class UserManager {
             const query = { _id: boss._id };
             const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
             const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
-   
+
             const isUpdated = await MongoDB.update(collection_boss, query, value);
             if (!isUpdated) {
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
@@ -210,9 +209,9 @@ class UserManager {
     async refer(userId, code) {
         const user = await getUserData(userId);
         const userRefer = await this.getUserDataByName(code);
-        if (!user || user.name == code || !userRefer){
+        if (!user || user.name == code || !userRefer) {
             logger.SystemError({ service: "UserManager.refer", data: { userId, code }, payload: Errors.INVALID_REFER() });
-            throw Errors.INVALID_REFER(); 
+            throw Errors.INVALID_REFER();
         }
         const query = { _id: MongoDB.createId(userId) };
         const value = { $set: { refer: code } };
@@ -231,11 +230,25 @@ class UserManager {
     }
 
     async changeNickname(userId, nickname) {
-        const user = await this.getUserData(userId);
-        if (!user || user.name != Crypto.generateId(userId) || nickname.length > 20) return false;
-        const quey = { _id: MongoDB.createId(userId) };
-        const value = { $set: { name: nickname } };
-        return await MongoDB.update(collection_users, quey, value);
+        try {
+            const user = await this.getUserData(userId);
+            if (!user) {
+                logger.SystemError({ service: "UserManager.changeNickname", data: { userId, nickname }, payload: Errors.INVALID_NICKNAME() });
+                throw Errors.INVALID_NICKNAME();
+            }
+            if (user.name != Crypto.encrypt(userId) || nickname.length > 20) {
+                logger.Hack({ service: "UserManager.changeNickname", data: { userId, nickname }, payload: Errors.ERROR_NICKNAME() });
+                throw Errors.ERROR_NICKNAME();
+            }
+            const quey = { _id: MongoDB.createId(userId) };
+            const value = { $set: { name: nickname } };
+            return await MongoDB.update(collection_users, quey, value);
+        } catch (err) {
+            if (!!err.code) throw err;
+            logger.SystemError({ service: "UserManager.changeNickname", data: { _user }, payload: err });
+            throw Errors.INVALID_JOIN_BATTLE();
+        }
+
     }
 
     async getUser(userId) {
@@ -299,7 +312,7 @@ class UserManager {
 
     async _validateEquip(userId, weapon) {
         const userData = await this.getUserData(userId);
-        if(userData.currentWeapon == weapon) return false;
+        if (userData.currentWeapon == weapon) return false;
         return userData.inventory.hasOwnProperty(weapon) ? true : false;
     }
 
