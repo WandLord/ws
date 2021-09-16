@@ -1,4 +1,14 @@
 <html>
+<script>
+      window.onload = () => {
+const uri = window.location.toString();
+
+        if (uri.indexOf('#') > 0) {
+            const clean_uri = uri.substring(0,uri.indexOf('#'));
+            window.history.replaceState({}, document.title, clean_uri);
+        }
+      };
+    </script>
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <meta name="google-signin-client_id" content="806335753793-gi0i8bk6gogih380kl83b8ctciqkit6i.apps.googleusercontent.com">
 
@@ -8,7 +18,9 @@
     }
 </script>
 
+
 <head>
+    <title>Wandlord - Hub</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
         integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous" />
 </head>
