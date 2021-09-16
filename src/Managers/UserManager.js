@@ -136,7 +136,7 @@ class UserManager {
         const user = await this.getUserData(_user);
         try {
             if (!user) {
-                logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE });
+                logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
             const boss = BossManager.getStatus();
@@ -147,7 +147,7 @@ class UserManager {
             const query = { layer: boss.layer };
             const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
             if (!statusChanged) {
-                logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE });
+                logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
             const isUpdated = await MongoDB.update(collection_boss, query, value);
@@ -166,7 +166,7 @@ class UserManager {
             const boss = BossManager.getStatus();
             let bossUserData = await this._findUserInBoss(boss.layer, _user);
             if (!bossUserData){
-                logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE });
+                logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
             bossUserData = bossUserData.fighting[_user];
@@ -177,7 +177,7 @@ class UserManager {
             const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
             const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
             if (!statusChanged) {
-                logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE });
+                logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
             const isUpdated = await MongoDB.update(collection_boss, quey, value);
