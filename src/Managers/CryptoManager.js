@@ -5,7 +5,9 @@ dotenv.config();
 class CryptoManager{
 
     generateId(peper) {
-        return crypto.createHash('sha1').update(peper + crypto.randomBytes(16)).digest('hex');
+        const hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA1, CryptoJS.lib.WordArray.random(16));
+        hmac.update(CryptoJS.lib.WordArray.create(peper))
+        return hmac.finalize().toString();
     }
     encrypt(userId) {
         return CryptoJS.AES.encrypt(userId, process.env.CRYPTO_PRIVATE_KEY).toString();

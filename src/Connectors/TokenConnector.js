@@ -24,7 +24,6 @@ async function getBalance() {
   const format = web3.utils.fromWei(result); // 29803630.997051883414242659
   var stringValue = result.toString();
   var x = stringValue.substring(0, stringValue.length - 8) + "." + stringValue.substring(stringValue.length - 8)
-  console.log(x);
 }
 async function tst() {
   let decimals = web3.utils.toBN(8);
@@ -35,7 +34,6 @@ async function tst() {
   // call transfer function
   contract.methods.transfer(walletAddress, value, (error, txHash) => {
     // it returns tx hash because sending tx
-    console.log(txHash);
   });
 }
 tst();

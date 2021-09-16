@@ -56,6 +56,7 @@ class WandlordError extends Error{
     INVALID_FORGE(){
         this.code = 180,
         this.message = 'Unexpected forge found.'
+        return this;
     }
 
     INVALID_EXTRACT(){

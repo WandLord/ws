@@ -16,11 +16,10 @@ class UserManager {
         try {
             const result = await this._validateForge(userId, mainWeaponId, secondayWeaponId);
             if (!result.isValid) {
-                //TODO LOG HACKER
                 logger.SystemError({ service: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
                 throw Errors.INVALID_FORGE();
             }
-            Currensy.spend(userId, result.price, "forge", result.userData.refer);
+            //Currensy.spend(userId, result.price, "forge", result.userData.refer);
             const forgedWeapon = Weapon.forgeWeapon(result.userData.inventory[mainWeaponId], result.userData.inventory[secondayWeaponId]);
             const isNewWeaponForged = await this._forgeUpdateData(result.userData._id, mainWeaponId, secondayWeaponId, forgedWeapon.weaponId, forgedWeapon.newWeapon, result.price);
             return isNewWeaponForged ? forgedWeapon.newWeapon : false;
@@ -71,6 +70,7 @@ class UserManager {
             const value = { $set: { currentWeapon: weapon } };
             return await MongoDB.update(collection_users, query, value);
         } catch (err) {
+            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.equipWeapon", data: { id, weapon }, payload: err });
             throw Errors.INVALID_EQUIP();
@@ -290,6 +290,7 @@ class UserManager {
 
     async _validateEquip(userId, weapon) {
         const userData = await this.getUserData(userId);
+        if(userData.currentWeapon == weapon) return false;
         return userData.inventory.hasOwnProperty(weapon) ? true : false;
     }
 

@@ -6,7 +6,7 @@ const collection_data = "data";
 class CurrencyManager {
     //TODO REFACTOR
     async spend(userId, price, on, referNickName) {
-        price = Number(price);
+     /*   price = Number(price);
         const referUser = await User.getUserDataByName(referNickName);
         const refer = Number(((price / 100) * Params.REFER_PERCETNAGE).toFixed(Params.TOKEN_DECIMALS));
         price -= refer;
@@ -16,7 +16,7 @@ class CurrencyManager {
         const quey = { name: "currency" };
         const value = { $inc: { burn: burn, boss: boss, profit: profit } };
         await MongoDB.update(collection_data, quey, value);
-        await User.addCurrencyToUserId(referUser._id, refer);
+        await User.addCurrencyToUserId(referUser._id, refer);*/
     }
 }
 module.exports = new CurrencyManager();

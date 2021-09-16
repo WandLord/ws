@@ -175,7 +175,7 @@ app.post('/equip/:id', traceRequest, isValidToken, checkIsNotFighting, updateLas
   try {
     const weapon = req.body.weapon;
     const isEquippedWeapon = await User.equipWeapon(req.params.id, weapon);
-    if (isEquippedWeapon) throw Errors.INVALID_EQUIP();
+    if (!isEquippedWeapon) throw Errors.INVALID_EQUIP();
     return res.json(response(isEquippedWeapon, res.locals.validToken, 200, ""));
   } catch (err) {
     return res.json(response(null, null, err.code, err.message));
