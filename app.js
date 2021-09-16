@@ -91,11 +91,11 @@ async function updateLastJoin(req, res, next) {
 }
 
 function checkIsFighting(req, res, next) {
-  Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, Errors.ERROR_IsFigthing().code, Errors.ERROR_IsFigthing().message));
+  Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, Errors.ERROR_IsFigthing().code, Errors.ERROR_IsFigthing()));
 }
 
 function checkIsNotFighting(req, res, next) {
-  !Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, Errors.ERROR_IsFigthing().code, Errors.ERROR_IsFigthing().message));
+  !Boss.isFighting(req.params.id) ? next() : res.json(response(null, null, Errors.ERROR_IsFigthing().code, Errors.ERROR_IsFigthing()));
 }
 
 app.get('/login/:id', traceRequest, async function (req, res) {
