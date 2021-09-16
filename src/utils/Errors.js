@@ -140,5 +140,9 @@ class WandlordError extends Error{
         this.message = 'Unexpected request when user can\'t do.'
         return this;
     }
+    toString(){
+        this.stack = stack.split("\n");
+        return this;
+    }
 }
 module.exports = new WandlordError();

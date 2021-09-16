@@ -24,7 +24,7 @@ class WeaponManager {
     }
 
     extract(_weapon) {
-        incDPS = _weapon.dps * Params.WEAPON_EXTRACTOR_INC;
+        const incDPS = _weapon.dps * Params.WEAPON_EXTRACTOR_INC;
         return incDPS;
     }
 

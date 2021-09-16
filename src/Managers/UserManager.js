@@ -46,7 +46,7 @@ class UserManager {
 
         } catch (err) {
             if (!!err.code) throw err;
-            logger.SystemError({ service: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId, result }, payload: err });
+            logger.SystemError({ service: "UserManager.extract", data: { userId, destWeaponId, sourceWeaponId }, payload: err });
             throw Errors.INVALID_EXTRACT();
         }
     }
@@ -70,7 +70,6 @@ class UserManager {
             const value = { $set: { currentWeapon: weapon } };
             return await MongoDB.update(collection_users, query, value);
         } catch (err) {
-            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.equipWeapon", data: { id, weapon }, payload: err });
             throw Errors.INVALID_EQUIP();
@@ -268,7 +267,7 @@ class UserManager {
     }
 
     async _validateExtract(userId, destWeaponId, sourceWeaponId) {
-        const userData = await getUserData(userId);
+        const userData = await this.getUserData(userId);
         const response = {
             isValid: false,
             userData,
@@ -304,9 +303,9 @@ class UserManager {
     }
 
     async _extractUpdateData(userId, sourceWeaponId, destroyWeaponId, dps) {
-        _sourceWeaponDPS = "inventory." + sourceWeaponId + ".dps";
-        _sourceWeaponLevel = "inventory." + sourceWeaponId + ".level";
-        _destroyWeapon = "inventory." + destroyWeaponId;
+        const _sourceWeaponDPS = "inventory." + sourceWeaponId + ".dps";
+        const _sourceWeaponLevel = "inventory." + sourceWeaponId + ".level";
+        const _destroyWeapon = "inventory." + destroyWeaponId;
         const query = { _id: userId };
         const value = { $inc: { [_sourceWeaponDPS]: dps, [_sourceWeaponLevel]: 1 }, $unset: { [_destroyWeapon]: "" } };
         return await MongoDB.update(collection_users, query, value);
