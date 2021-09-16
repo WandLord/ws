@@ -7,6 +7,7 @@ let actualBoss = {};
 let totaldps = 0;
 let updatingData = false;
 let fighting = [];
+let lastHP = 0;
 
 class BossManager {
 
@@ -21,12 +22,12 @@ class BossManager {
             delete auxBoss.fighting;
             return auxBoss;
         }
-        logger.SystemCritical({ service: "BossManager.getStatus", data: {actualBoss}, payload: err });
+        logger.SystemCritical({ service: "BossManager.getStatus", data: {actualBoss}});
     }
 
     joinPlayer(id, _dps) {
-        if(!fighting.includes(id)){
-            logger.SystemError({ service: "BossManager.getStatus", data: {fighting, id}, payload: err });
+        if(fighting.includes(id)){
+            logger.SystemError({ service: "BossManager.joinPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
             //TODO LOG POSIBLE HACKER
            throw Errors.INVALID_JOIN_BATTLE();
         }
@@ -36,8 +37,8 @@ class BossManager {
     }
 
     leftPlayer(id, _dps) {
-        if (fighting.includes(id)) {
-            logger.SystemError({ service: "BossManager.getStatus", data: {fighting, id}, payload: err });
+        if (!fighting.includes(id)) {
+            logger.SystemError({ service: "BossManager.leftPlayer", data: {fighting, id}, payload: Errors.INVALID_JOIN_BATTLE() });
             //TODO LOG POSIBLE HACKER
             throw Errors.INVALID_LEFT_BATTLE();
         }
@@ -67,6 +68,7 @@ class BossManager {
             await this._battleEnd();
         } else if (newBoss.enable == true) {
             actualBoss = newBoss;
+            lastHP = actualBoss.actHP;
             await this._loadDPS(actualBoss._id);
             actualBoss.players = fighting.length;
         }
@@ -87,12 +89,13 @@ class BossManager {
     }
 
     async _updateBossData() {
-        if (!updatingData) {
+        if (!updatingData && lastHP != actualBoss.actHP) {
             updatingData = true;
             const query = { enable: true };
             const value = { $set: { actHP: actualBoss.actHP } };
             await MongoDB.update(collection_boss, query, value);
             updatingData = false;
+            lastHP = actualBoss.actHP;
         }
     }
 

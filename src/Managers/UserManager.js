@@ -133,27 +133,39 @@ class UserManager {
     }
 
     async joinBattle(_user) {
-        const user = await this.getUserData(_user);
         try {
+            const user = await this.getUserData(_user);
+            console.log("a");
             if (!user) {
+                console.log("aa");
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
             const boss = BossManager.getStatus();
             const statusChanged = await this._changeFightingStatus(_user, true);
-            const userField1 = "fighting." + _user + ".dps";
-            const userField2 = "fighting." + _user + ".fight";
-            const userField3 = "fighting." + _user + ".lastJoin";
-            const query = { layer: boss.layer };
-            const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
             if (!statusChanged) {
+                console.log("bb");
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
+            console.log("b");
+            const userField1 = "fighting." + _user + ".dps";
+            const userField2 = "fighting." + _user + ".fight";
+            const userField3 = "fighting." + _user + ".lastJoin";
+            const query = { _id: boss._id };
+            const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
+
             const isUpdated = await MongoDB.update(collection_boss, query, value);
-            if (isUpdated) BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
+            if (!isUpdated) {
+                console.log("cc");
+                logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
+                throw Errors.INVALID_JOIN_BATTLE();
+            }
+            BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
+            console.log("d");
             return isUpdated;
         } catch (err) {
+            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: err });
             throw Errors.INVALID_JOIN_BATTLE();
@@ -163,27 +175,38 @@ class UserManager {
 
     async leftBattle(_user) {
         try {
+            console.log("a");
             const boss = BossManager.getStatus();
-            let bossUserData = await this._findUserInBoss(boss.layer, _user);
+            let bossUserData = await this._findUserInBoss(boss._id, _user);
             if (!bossUserData){
+                console.log("aa");
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
-            bossUserData = bossUserData.fighting[_user];
             const statusChanged = await this._changeFightingStatus(_user, false);
-            const userField1 = "fighting." + _user + ".totalDPS";
-            const userField2 = "fighting." + _user + ".fight";
-            const quey = { layer: boss.layer };
-            const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
-            const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
             if (!statusChanged) {
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
-            const isUpdated = await MongoDB.update(collection_boss, quey, value);
-            if (isUpdated) BossManager.leftPlayer(_user, bossUserData.dps);
+            console.log("b");
+            bossUserData = bossUserData.fighting[_user];
+            const userField1 = "fighting." + _user + ".totalDPS";
+            const userField2 = "fighting." + _user + ".fight";
+            const query = { _id: boss._id };
+            const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
+            const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
+   
+            const isUpdated = await MongoDB.update(collection_boss, query, value);
+            if (!isUpdated) {
+                console.log("cc");
+                logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
+                throw Errors.INVALID_LEFT_BATTLE();
+            }
+            BossManager.leftPlayer(_user, bossUserData.dps);
+            console.log("d");
             return isUpdated;
         } catch (err) {
+            console.log(err);
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: err });
             throw Errors.INVALID_JOIN_BATTLE();
@@ -324,8 +347,8 @@ class UserManager {
         return userData;
     }
 
-    async _findUserInBoss(_layer, userId) {
-        const query = { layer: _layer };
+    async _findUserInBoss(_bossid, userId) {
+        const query = { _id: _bossid };
         const _fighting = "fighting." + userId;
         const _fields = { projection: { [_fighting]: 1, _id: 0 } };
         return await MongoDB.findOne(collection_boss, query, _fields);

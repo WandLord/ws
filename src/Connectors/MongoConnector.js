@@ -50,6 +50,7 @@ class MongoConnector {
     async update(_collection, query, value) {
         try {
             const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
+            console.log(query, _collection, value, numberOfUpdatedItems);
             if (numberOfUpdatedItems === 0) {
                 logger.SystemError({ service: "MongoConnector.update", data: { _collection, query, value }, payload: Errors.DB_UPDATE_DEFINITE() });
                 throw Errors.DB_UPDATE_DEFINITE();
