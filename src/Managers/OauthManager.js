@@ -1,10 +1,8 @@
 const Oauth = require('simple-oauth2');
 const Moment = require('moment');
-const dotenv = require('dotenv');
 const Got = require('got');
 const User = require('./UserManager');
 const Errors = require('../utils/Errors');
-dotenv.config();
 
 const redirectUri = (process.env.ENVIRONMENT === 'development' ? 'localhost' : process.env.PRODUCTION_IP) + (`:${process.env.LISTEN || '3000'}`);
 const userPool = [];

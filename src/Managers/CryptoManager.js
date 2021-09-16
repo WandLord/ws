@@ -1,7 +1,4 @@
 const CryptoJS = require("crypto-js");
-const dotenv = require('dotenv');
-dotenv.config();
-
 class CryptoManager{
 
     generateId(peper) {

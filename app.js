@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const sessions = require('express-session');
 const httpContext = require('express-http-context');
-const dotenv = require('dotenv');
 const path = require('path');
 const nunjucks = require('nunjucks');
 const { v4: uuid } = require('uuid');
@@ -18,7 +17,6 @@ const Oauth = require('./src/Managers/OauthManager');
 const Errors = require("./src/utils/Errors");
 
 const app = express();
-dotenv.config();
 
 app.use(bodyParser.json());
 app.use(cors());

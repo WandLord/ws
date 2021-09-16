@@ -1,9 +1,7 @@
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
-const dotenv = require('dotenv');
 const logger = require('../utils/Logger');
 const Errors = require('../utils/Errors');
-dotenv.config();
 
 const uri = process.env.DATABASE_URI;
 let client = null;
@@ -48,17 +46,17 @@ class MongoConnector {
     }
 
     async update(_collection, query, value) {
-        try {
-            const numberOfUpdatedItems = (await db.collection(_collection).updateOne(query, value)).modifiedCount;
-            if (numberOfUpdatedItems === 0) {
-                logger.SystemError({ service: "MongoConnector.update", data: { _collection, query, value }, payload: Errors.DB_UPDATE_DEFINITE() });
-                throw Errors.DB_UPDATE_DEFINITE();
-            }
+        // try {
+            return (await db.collection(_collection).updateOne(query, value)).modifiedCount;
+            // if (numberOfUpdatedItems === 0) {
+            //     logger.SystemError({ service: "MongoConnector.update", data: { _collection, query, value }, payload: Errors.DB_UPDATE_DEFINITE() });
+            //     throw Errors.DB_UPDATE_DEFINITE();
+            // }
             return true;
-        } catch (err) {
-            if (!!err.code) throw err;
-            logger.SystemCritical({ service: "MongoConnector.update", data: { _collection, query, value }, payload: err });
-        }
+        // } catch (err) {
+        //     if (!!err.code) throw err;
+        //     logger.SystemCritical({ service: "MongoConnector.update", data: { _collection, query, value }, payload: err });
+        // }
     }
 
     async insert(_collection, value) {

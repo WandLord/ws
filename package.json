@@ -25,7 +25,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "npm test",
-    "start": "node app.js"
+    "start": "node -r dotenv/config app.js"
   },
   "repository": {
     "type": "git",

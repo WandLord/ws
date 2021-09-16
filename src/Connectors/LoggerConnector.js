@@ -1,8 +1,5 @@
 const elasticsearch = require("elasticsearch");
-const dotenv = require('dotenv');
 const httpContext = require('express-http-context');
-
-dotenv.config();
 
 const client = new elasticsearch.Client({
   hosts: [

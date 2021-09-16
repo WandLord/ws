@@ -1,6 +1,4 @@
 const logger = require("../Connectors/LoggerConnector");
-const dotenv = require('dotenv');
-dotenv.config();
 
 class Logger {
 
