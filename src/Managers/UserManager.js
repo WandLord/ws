@@ -236,7 +236,7 @@ class UserManager {
                 logger.SystemError({ service: "UserManager.changeNickname", data: { userId, nickname }, payload: Errors.INVALID_NICKNAME() });
                 throw Errors.INVALID_NICKNAME();
             }
-            if (user.name != Crypto.encrypt(userId) || nickname.length > 20) {
+            if (user.name.length > 20 || nickname.length > 20) {
                 logger.Hack({ service: "UserManager.changeNickname", data: { userId, nickname }, payload: Errors.ERROR_NICKNAME() });
                 throw Errors.ERROR_NICKNAME();
             }
