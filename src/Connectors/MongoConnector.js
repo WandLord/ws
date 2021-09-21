@@ -11,11 +11,7 @@ class MongoConnector {
 
     async find(_collection, query, fields) {
         try {
-            const item = await db.collection(_collection).find(query, fields).toArray();
-            if (!item) {
-                logger.SystemError({ service: "MongoConnector.find", data: { _collection, query, fields }, payload: Errors.DB_FIND_DEFINITE() });
-                throw Errors.DB_FIND_DEFINITE();
-            }
+            return await db.collection(_collection).find(query, fields).toArray();
         } catch (err) {
             if (!!err.code) throw err;
             logger.SystemCritical({ service: "MongoConnector.find", data: { _collection, query, fields }, payload: err });

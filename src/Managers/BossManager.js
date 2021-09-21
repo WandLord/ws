@@ -122,24 +122,24 @@ class BossManager {
     async _loadBoss() {
         const query = { enable: true };
         const newBoss = await MongoDB.findOne(process.env.COLLECTION_BOSS, query, {});
-        totalPlayers = await this._getTotalPlayers();
+        totalPlayers = (await this._getPlayers()).length;
         actualBoss = newBoss;
         lastHP = actualBoss.actHP;
         await this._loadDPS();
         actualBoss.players = Object.keys(actualBoss.fighting).length;
     }
+
     async _disableBoss(){
         const query = { enable: true };
         const value = { $set: { enable: false } };
         return MongoDB.update(process.env.COLLECTION_BOSS, query, value);
     }
 
-    async _getTotalPlayers() {
+    async _getPlayers() {
         const date = new Date();
         date.setDate(date.getDate() - process.env.DAYS_MAX_COUNT_USER);
         const query = { lastJoin: { $gte: date.toISOString() } };
-        const count = await MongoDB.count(process.env.COLLECTION_USER, query);
-        return count;
+        return await MongoDB.find(process.env.COLLECTION_USER, query);
     }
 
     async _loadDPS() {
@@ -152,7 +152,8 @@ class BossManager {
     async _createBoss() {
 
         const data = await Currensy.getCurrency();
-        const reward = data.boss + Number(((data.boss / 100) * Params.TOKEN_TO_NEW_BOSS).toFixed(Params.TOKEN_DECIMALS));;
+        const reward = data.boss + Number(((data.boss / 100) * Params.TOKEN_TO_NEW_BOSS).toFixed(Params.TOKEN_DECIMALS));
+        const currentPlayersDps = await this._getCurrentPlayersDps();
         const newBoss = {
             name: Params.BOSS_NAME_DIC[Math.floor(Math.random() * Params.BOSS_NAME_DIC.length)],
             image: Params.BOSS_ICON_RANGE[Math.floor(Math.random() * Params.BOSS_ICON_RANGE.length)],
@@ -165,6 +166,18 @@ class BossManager {
         }
         await MongoDB.insert(process.env.COLLECTION_BOSS, newBoss);
         actualBoss = newBoss;
+    }
+
+    async _getCurrentPlayersDps() {
+        const currentPlayers = await this._getPlayers();
+        const currentPlayersDps = currentPlayers.reduce( (prev, currentPlayer) => {
+            if (currentPlayer.currentWeapon) {
+                return prev + currentPlayer.inventory[currentPlayer.currentWeapon].dps;
+            } else {
+                return prev;
+            }
+        }, 0);
+        return currentPlayersDps;
     }
 
     async _updateBossData() {
