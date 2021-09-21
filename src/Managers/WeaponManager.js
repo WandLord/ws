@@ -29,7 +29,6 @@ class WeaponManager {
     }
 
     createWeapon() {
-        //TODO hablar del tema de las armas
         const weapon =
         {
             dps: Params.WEAPON_DPS_DEFAULT,

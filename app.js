@@ -131,7 +131,7 @@ app.get('/joinbattle/:id', traceRequest, isValidToken, checkIsNotFighting, updat
     const userHasJoinedBattle = await User.joinBattle(req.params.id);
     return res.json(response(userHasJoinedBattle, res.locals.validToken, 200, ""));
   } catch (err) {
-    return res.json(response({}, "", err.code, err.message))
+    return res.json(response(false, "", err.code, err.message))
   }
 });
 
@@ -140,7 +140,7 @@ app.get('/leftBattle/:id', traceRequest, isValidToken, checkIsFighting, updateLa
     const userHasLeftBattle = await User.leftBattle(req.params.id);
     return res.json(response(userHasLeftBattle, res.locals.validToken, 200, ""));
   } catch (err) {
-    return res.json(response({}, "", err.code, err.message))
+    return res.json(response(false, "", err.code, err.message))
   }
 });
 
@@ -227,6 +227,14 @@ app.get('/checkAuth/:id', traceRequest, async function (req, res) {
 app.post('/nickname/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
   try {
     return res.json(response(await User.changeNickname(req.params.id, req.body.nickname), Token.createToken(req.params.id), 200, ""));
+  } catch (err) {
+    return res.json(response(null, null, err.code, err.message));
+  }
+});
+
+app.post('/claim/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
+  try {
+    return res.json(response(await User.claim(req.params.id), Token.createToken(req.params.id), 200, ""));
   } catch (err) {
     return res.json(response(null, null, err.code, err.message));
   }

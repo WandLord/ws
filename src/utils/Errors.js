@@ -140,8 +140,9 @@ class WandlordError extends Error{
         this.message = 'Unexpected request when user can\'t do.'
         return this;
     }
-    toString(){
-        this.stack = stack.split("\n");
+    ERROR_CLAIM(){
+        this.code = 222,
+        this.message = 'Unexpected Error in CLAIM auth.'
         return this;
     }
 }

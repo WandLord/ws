@@ -7,8 +7,6 @@ const Crypto = require('./CryptoManager');
 const Errors = require('../utils/Errors');
 const logger = require('../utils/Logger');
 
-const collection_users = "users";
-const collection_boss = "boss";
 
 class UserManager {
 
@@ -19,7 +17,7 @@ class UserManager {
                 logger.Hack({ service: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
                 throw Errors.INVALID_FORGE();
             }
-            //Currensy.spend(userId, result.price, "forge", result.userData.refer);
+            await this.spend(userId, result.price, "forge", result.userData.refer);
             const forgedWeapon = Weapon.forgeWeapon(result.userData.inventory[mainWeaponId], result.userData.inventory[secondayWeaponId]);
             const isNewWeaponForged = await this._forgeUpdateData(result.userData._id, mainWeaponId, secondayWeaponId, forgedWeapon.weaponId, forgedWeapon.newWeapon, result.price);
             return isNewWeaponForged ? forgedWeapon.newWeapon : false;
@@ -49,13 +47,17 @@ class UserManager {
             throw Errors.INVALID_EXTRACT();
         }
     }
-
+    async spend(userId, price, on, referNickName) {
+        const referId = (await this.getUserDataByName(referNickName))._id.toString();
+        const data = await Currensy.spend(userId, price, on, referId);
+        this.addToClaim(referId, data, "Refers");
+    }
     async updateUserData(user) {
         //TODO Tiene sentido?
         const value = { $set: user };
         const query = { _id: user._id };
         delete user._id;
-        return await MongoDB.update(collection_users, query, value);
+        return await MongoDB.update(process.env.COLLECTION_USER, query, value);
     }
 
     async equipWeapon(id, weapon) {
@@ -67,7 +69,7 @@ class UserManager {
             }
             const query = { _id: MongoDB.createId(id) };
             const value = { $set: { currentWeapon: weapon } };
-            return await MongoDB.update(collection_users, query, value);
+            return await MongoDB.update(process.env.COLLECTION_USER, query, value);
         } catch (err) {
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.equipWeapon", data: { id, weapon }, payload: err });
@@ -84,12 +86,11 @@ class UserManager {
             const newUser = {
                 _id: internalId,
                 name: Crypto.encrypt(internalId.toString()),
-                balance: 0,
+                balance: 10000,
                 blacklist: false,
                 register: new Date().toISOString(),
                 lastJoin: new Date().toISOString(),
                 fighting: false,
-                skin: Params.PLAYER_DEFAULT_SKIN,
                 currentWeapon: mainWeapon[0],
                 refer: Params.DEFAULT_REFER,
                 inventory: {
@@ -100,7 +101,7 @@ class UserManager {
                     google: userId
                 }
             };
-            await MongoDB.insert(collection_users, newUser);
+            await MongoDB.insert(process.env.COLLECTION_USER, newUser);
             return this._formatUserDataForReturn(newUser);
         } catch (err) {
             if (!!err.code) throw err;
@@ -119,14 +120,13 @@ class UserManager {
 
     async getUserDataByName(userName) {
         const query = { name: new RegExp("^" + userName.toLowerCase(), "i") };
-        const response = await MongoDB.findOne(collection_users, query, {});
-        return response;
+        return await MongoDB.findOneDefinite(process.env.COLLECTION_USER, query, {});
     }
 
     async getUserDataByOauth(userId) {
         const field = "accounts.google"
         const query = { [field]: userId };
-        const user = await MongoDB.findOne(collection_users, query, {});
+        const user = await MongoDB.findOne(process.env.COLLECTION_USER, query, {});
         if (!user) return false;
         return this._formatUserDataForReturn(user);
     }
@@ -138,24 +138,11 @@ class UserManager {
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
-            const boss = BossManager.getStatus();
-            const statusChanged = await this._changeFightingStatus(_user, true);
-            if (!statusChanged) {
-                logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
-                throw Errors.INVALID_JOIN_BATTLE();
-            }
-            const userField1 = "fighting." + _user + ".dps";
-            const userField2 = "fighting." + _user + ".fight";
-            const userField3 = "fighting." + _user + ".lastJoin";
-            const query = { _id: boss._id };
-            const value = { $set: { [userField1]: user.inventory[user.currentWeapon].dps, [userField2]: true, [userField3]: new Date().toISOString() } };
-
-            const isUpdated = await MongoDB.update(collection_boss, query, value);
+            const isUpdated = await BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
             if (!isUpdated) {
                 logger.SystemError({ service: "UserManager.joinBattle", data: { _user, user }, payload: Errors.INVALID_JOIN_BATTLE() });
                 throw Errors.INVALID_JOIN_BATTLE();
             }
-            BossManager.joinPlayer(_user, user.inventory[user.currentWeapon].dps);
             return isUpdated;
         } catch (err) {
             if (!!err.code) throw err;
@@ -167,30 +154,16 @@ class UserManager {
 
     async leftBattle(_user) {
         try {
-            const boss = BossManager.getStatus();
-            let bossUserData = await this._findUserInBoss(boss._id, _user);
-            if (!bossUserData) {
+            const isFighting = BossManager.isFighting(_user);
+            if (!isFighting) {
                 logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
-            const statusChanged = await this._changeFightingStatus(_user, false);
-            if (!statusChanged) {
-                logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
-                throw Errors.INVALID_LEFT_BATTLE();
-            }
-            bossUserData = bossUserData.fighting[_user];
-            const userField1 = "fighting." + _user + ".totalDPS";
-            const userField2 = "fighting." + _user + ".fight";
-            const query = { _id: boss._id };
-            const _totaldps = ((new Date().getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
-            const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
-
-            const isUpdated = await MongoDB.update(collection_boss, query, value);
+            const isUpdated = await BossManager.leftPlayer(_user);
             if (!isUpdated) {
-                logger.SystemError({ service: "UserManager.leftBattle", data: { _user, bossUserData }, payload: Errors.INVALID_LEFT_BATTLE() });
+                logger.SystemError({ service: "UserManager.leftBattle", data: { _user }, payload: Errors.INVALID_LEFT_BATTLE() });
                 throw Errors.INVALID_LEFT_BATTLE();
             }
-            BossManager.leftPlayer(_user, bossUserData.dps);
             return isUpdated;
         } catch (err) {
             if (!!err.code) throw err;
@@ -203,7 +176,7 @@ class UserManager {
     async UpdateLastJoin(userId, userIp) {
         const quey = { _id: MongoDB.createId(userId) };
         const value = { $set: { lastJoin: new Date().toISOString(), ip: userIp } };
-        await MongoDB.update(collection_users, quey, value);
+        await MongoDB.update(process.env.COLLECTION_USER, quey, value);
     }
 
     async refer(userId, code) {
@@ -215,18 +188,12 @@ class UserManager {
         }
         const query = { _id: MongoDB.createId(userId) };
         const value = { $set: { refer: code } };
-        return await MongoDB.update(collection_users, query, value);
-    }
-
-    async addCurrencyToUserId(userId, amount) {
-        const quey = { _id: MongoDB.createId(userId) };
-        const value = { $inc: { balance: amount } };
-        return await MongoDB.update(collection_users, quey, value);
+        return await MongoDB.update(process.env.COLLECTION_USER, query, value);
     }
 
     async getUserData(userId) {
         const query = { _id: MongoDB.createId(userId) };
-        return await MongoDB.findOne(collection_users, query, {});
+        return await MongoDB.findOne(process.env.COLLECTION_USER, query, {});
     }
 
     async changeNickname(userId, nickname) {
@@ -242,13 +209,31 @@ class UserManager {
             }
             const quey = { _id: MongoDB.createId(userId) };
             const value = { $set: { name: nickname } };
-            return await MongoDB.update(collection_users, quey, value);
+            return await MongoDB.update(process.env.COLLECTION_USER, quey, value);
         } catch (err) {
             if (!!err.code) throw err;
             logger.SystemError({ service: "UserManager.changeNickname", data: { _user }, payload: err });
             throw Errors.INVALID_JOIN_BATTLE();
         }
+    }
 
+    async addToClaim(userId, cant, reason) {
+        const field = "toClaim." + reason;
+        const quey = { _id: MongoDB.createId(userId) };
+        const value = { $inc: { [field]: cant } };
+        return await MongoDB.update(process.env.COLLECTION_USER, quey, value);
+    }
+
+    async claim(userId) {
+        const user = await this.getUser(userId);
+        if (!user) {
+            logger.Hack({ service: "UserManager.claim", data: { userId }, payload: Errors.ERROR_CLAIM() });
+            throw Errors.ERROR_CLAIM();
+        }
+        const field = "toClaim";
+        const quey = { _id: MongoDB.createId(userId) };
+        const value = { $set: { [field]: {} }, $inc: { balance: cant } };
+        return await MongoDB.update(process.env.COLLECTION_USER, quey, value);
     }
 
     async getUser(userId) {
@@ -322,7 +307,7 @@ class UserManager {
         _newWeaponId = "inventory." + _newWeaponId;
         const value = { $inc: { balance: (_price * -1), [_mainWeapon]: 1, [_secondaryWeapon]: 1 }, $set: { [_newWeaponId]: _newWeapon } };
         const query = { _id: userId };
-        return await MongoDB.update(collection_users, query, value);
+        return await MongoDB.update(process.env.COLLECTION_USER, query, value);
     }
 
     async _extractUpdateData(userId, sourceWeaponId, destroyWeaponId, dps) {
@@ -331,10 +316,11 @@ class UserManager {
         const _destroyWeapon = "inventory." + destroyWeaponId;
         const query = { _id: userId };
         const value = { $inc: { [_sourceWeaponDPS]: dps, [_sourceWeaponLevel]: 1 }, $unset: { [_destroyWeapon]: "" } };
-        return await MongoDB.update(collection_users, query, value);
+        return await MongoDB.update(process.env.COLLECTION_USER, query, value);
     }
 
     _formatUserDataForReturn(userData) {
+        userData.fighting = BossManager.isFighting(userData._id.toString());
         delete userData.register;
         delete userData.lastJoin;
         delete userData.accounts;
@@ -346,19 +332,5 @@ class UserManager {
 
         return userData;
     }
-
-    async _findUserInBoss(_bossid, userId) {
-        const query = { _id: _bossid };
-        const _fighting = "fighting." + userId;
-        const _fields = { projection: { [_fighting]: 1, _id: 0 } };
-        return await MongoDB.findOne(collection_boss, query, _fields);
-    }
-
-    async _changeFightingStatus(userId, bool) {
-        const query = { _id: MongoDB.createId(userId) };
-        const value = { $set: { fighting: bool } };
-        return await MongoDB.update(collection_users, query, value);
-    }
-
 }
 module.exports = new UserManager();
