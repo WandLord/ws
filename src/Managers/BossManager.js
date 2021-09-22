@@ -15,6 +15,7 @@ let totalDPS = 0;
 class BossManager {
 
     isFighting(id) {
+        console.log("isFighting ", actualBoss);
         if(actualBoss.fighting) 
         if (actualBoss.fighting.hasOwnProperty(id)) {
             if (actualBoss.fighting[id].fight) {
@@ -31,6 +32,7 @@ class BossManager {
             delete auxBoss.reward;
             delete auxBoss.fighting;
             auxBoss.dps = totaldps;
+            console.log("getStatus ", auxBoss);
             return auxBoss;
         }
         logger.SystemCritical({ service: "BossManager.getStatus", data: { actualBoss } });
