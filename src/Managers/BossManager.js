@@ -15,7 +15,7 @@ let totalDPS = 0;
 class BossManager {
 
     isFighting(id) {
-        console.log(actualBoss);
+        if(actualBoss.fighting) 
         if (actualBoss.fighting.hasOwnProperty(id)) {
             if (actualBoss.fighting[id].fight) {
                 return true;
@@ -26,7 +26,7 @@ class BossManager {
 
     getStatus() {
         if (actualBoss) {
-            const auxBoss = actualBoss;
+            const auxBoss = {actualBoss};
             auxBoss.population = Math.round(10 * auxBoss.players / totalPlayers);
             delete auxBoss.reward;
             delete auxBoss.fighting;
