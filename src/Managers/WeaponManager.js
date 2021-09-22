@@ -6,7 +6,7 @@ class WeaponManager {
 
     forgeWeapon(_weapon1, _weapon2) {
         try {
-            const _dps = ((_weapon1.dps + _weapon2.dps) / 2) + Params.WEAPON_INCREMENT_FORGE;
+            const _dps = Math.round(_weapon1.dps + _weapon2.dps / 2 + Params.WEAPON_INCREMENT_FORGE);
             const newWeapon = {
                 dps: _dps,
                 icon: this._generateRandomIcon(),
@@ -24,7 +24,7 @@ class WeaponManager {
     }
 
     extract(_weapon) {
-        const incDPS = _weapon.dps * Params.WEAPON_EXTRACTOR_INC;
+        const incDPS = Math.round(_weapon.dps * Params.WEAPON_EXTRACTOR_INC);
         return incDPS;
     }
 

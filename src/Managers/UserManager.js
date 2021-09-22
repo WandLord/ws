@@ -230,9 +230,11 @@ class UserManager {
             logger.Hack({ service: "UserManager.claim", data: { userId }, payload: Errors.ERROR_CLAIM() });
             throw Errors.ERROR_CLAIM();
         }
-        const field = "toClaim";
+        const field1 = "toClaim.Refers";
+        const field2 = "toClaim.Boss";
         const quey = { _id: MongoDB.createId(userId) };
-        const value = { $set: { [field]: {} }, $inc: { balance: cant } };
+        const value = [{ $set: { balance: { $add: ["$toClaim.Refers", "$toClaim.Boss", "$balance"] }, [field1]: 0, [field2]: 0 }}];
+        console.log(value);
         return await MongoDB.update(process.env.COLLECTION_USER, quey, value);
     }
 
@@ -250,14 +252,14 @@ class UserManager {
             price: 0,
             userData
         }
-
         const hasEnoughBalance = () => {
             const mainWeapon = userData.inventory[mainWeaponId];
             const secondaryWeapon = userData.inventory[secondaryWeaponId];
-            mainWeapon.forges = mainWeapon.forges > 4 ? 4 : mainWeapon.forges;
-            secondaryWeapon.forges = secondaryWeapon.forges > 4 ? 4 : secondaryWeapon.forges;
-            price = Params.FORGE_PRICE[mainWeapon.forges] + Params.FORGE_PRICE[secondaryWeapon.forges];
-            if (price > result.balance) return result;
+            const W1price = mainWeapon.dps * Params.FORGE_PRICE[mainWeapon.rarity] / 100 + mainWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
+            const W2price = secondaryWeapon.dps * Params.FORGE_PRICE[secondaryWeapon.rarity] / 100 + secondaryWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
+            price = Math.round((W1price + W2price) * 100) / 100;
+            console.log(price, userData.balance, price > userData.balance)
+            if (price > userData.balance) return result;
         }
 
         if (

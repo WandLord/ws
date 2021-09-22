@@ -10,12 +10,7 @@ let db = {};
 class MongoConnector {
 
     async find(_collection, query, fields) {
-        try {
-            return await db.collection(_collection).find(query, fields).toArray();
-        } catch (err) {
-            if (!!err.code) throw err;
-            logger.SystemCritical({ service: "MongoConnector.find", data: { _collection, query, fields }, payload: err });
-        }
+        return await db.collection(_collection).find(query, fields).toArray();
     }
 
     async findOne(_collection, query, fields) {

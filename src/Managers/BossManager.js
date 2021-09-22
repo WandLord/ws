@@ -26,7 +26,7 @@ class BossManager {
     getStatus() {
         if (actualBoss) {
             const auxBoss = actualBoss;
-            auxBoss.population = ((10 * auxBoss.players) / totalPlayers).toFixed(0);
+            auxBoss.population = Math.round(10 * auxBoss.players / totalPlayers);
             delete auxBoss.reward;
             delete auxBoss.fighting;
             auxBoss.dps = totaldps;
@@ -97,7 +97,7 @@ class BossManager {
                 if (this.isFighting(key)) await this.leftPlayer(key);
                 const bossUserData = actualBoss.fighting[key];
                 const dpsPercent = (bossUserData.totalDPS * 100) / actualBoss.maxHP;
-                const userReward = ((actualBoss.reward * dpsPercent) / 100).toFixed(Params.TOKEN_DECIMALS);
+                const userReward = Math.round(((actualBoss.reward * dpsPercent) / 100) * 100) / 100;
                 console.log(key, dpsPercent, userReward, actualBoss.reward, actualBoss.maxHP, bossUserData.totalDPS);
                 bulk.push({
                     "updateOne": {
@@ -129,7 +129,7 @@ class BossManager {
         actualBoss.players = Object.keys(actualBoss.fighting).length;
     }
 
-    async _disableBoss(){
+    async _disableBoss() {
         const query = { enable: true };
         const value = { $set: { enable: false } };
         return MongoDB.update(process.env.COLLECTION_BOSS, query, value);
@@ -152,7 +152,7 @@ class BossManager {
     async _createBoss() {
 
         const data = await Currensy.getCurrency();
-        const reward = data.boss + Number(((data.boss / 100) * Params.TOKEN_TO_NEW_BOSS).toFixed(Params.TOKEN_DECIMALS));
+        const reward = data.boss + Math.round((data.boss / 100) * Params.TOKEN_TO_NEW_BOSS * 100) / 100;
         const currentPlayersDps = await this._getCurrentPlayersDps();
         const newBoss = {
             name: Params.BOSS_NAME_DIC[Math.floor(Math.random() * Params.BOSS_NAME_DIC.length)],
@@ -170,7 +170,7 @@ class BossManager {
 
     async _getCurrentPlayersDps() {
         const currentPlayers = await this._getPlayers();
-        const currentPlayersDps = currentPlayers.reduce( (prev, currentPlayer) => {
+        const currentPlayersDps = currentPlayers.reduce((prev, currentPlayer) => {
             if (currentPlayer.currentWeapon) {
                 return prev + currentPlayer.inventory[currentPlayer.currentWeapon].dps;
             } else {

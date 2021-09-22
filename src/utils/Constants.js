@@ -1,17 +1,26 @@
 module.exports = 
 {
-    FORGE_PRICE: [2.5,3,4,4.5,5],
     WEAPON_ICON_RANGE: [0,39],
+    FORGE_PRICE:{
+        "common": 5,
+        "uncommon": 8,
+        "rare": 13,
+        "epic": 21,
+        "mystical": 34,
+        "legendary": 55,
+        "ascendent": 89
+    },
+    FORGE_INC_PRICE_FORGES: 1.5,
     WEAPON_INCREMENT_FORGE: 5,
     WEAPON_DPS_DEFAULT: 12,
     WEAPON_RARITY: {
-        5: "common",
-        50: "uncommon",
-        100: "rare",
-        500: "epic",
-        1000: "mystical",
-        5000: "legendary",
-        10000: "ascendent"
+        10: "common",
+        100: "uncommon",
+        500: "rare",
+        1000: "epic",
+        5000: "mystical",
+        10000: "legendary",
+        50000: "ascendent"
     },
     WEAPON_EXTRACTOR_INC : 0.125,
     WEAPON_MAX_LEVEL: 5,
