@@ -27,7 +27,7 @@ class BossManager {
 
     getStatus() {
         if (actualBoss) {
-            const auxBoss = {actualBoss};
+            const auxBoss = {...actualBoss};
             auxBoss.population = Math.round(10 * auxBoss.players / totalPlayers);
             delete auxBoss.reward;
             delete auxBoss.fighting;
