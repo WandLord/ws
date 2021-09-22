@@ -32,7 +32,7 @@ class BossManager {
             delete auxBoss.reward;
             delete auxBoss.fighting;
             auxBoss.dps = totaldps;
-            console.log("getStatus ", auxBoss);
+            console.log("getStatus ", auxBoss, totalPlayers);
             return auxBoss;
         }
         logger.SystemCritical({ service: "BossManager.getStatus", data: { actualBoss } });
