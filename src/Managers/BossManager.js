@@ -15,6 +15,7 @@ let totalDPS = 0;
 class BossManager {
 
     isFighting(id) {
+        console.log(actualBoss);
         if (actualBoss.fighting.hasOwnProperty(id)) {
             if (actualBoss.fighting[id].fight) {
                 return true;
