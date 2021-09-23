@@ -239,7 +239,6 @@ class UserManager {
         const field2 = "toClaim.Boss";
         const quey = { _id: MongoDB.createId(userId) };
         const value = [{ $set: { balance: { $add: ["$toClaim.Refers", "$toClaim.Boss", "$balance"] }, [field1]: 0, [field2]: 0 }}];
-        console.log(value);
         return await MongoDB.update(process.env.COLLECTION_USER, quey, value);
     }
 

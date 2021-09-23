@@ -232,7 +232,7 @@ app.post('/nickname/:id', traceRequest, isValidToken, checkIsNotFighting, update
   }
 });
 
-app.post('/claim/:id', traceRequest, isValidToken, checkIsNotFighting, updateLastJoin, async function (req, res) {
+app.post('/claim/:id', traceRequest, isValidToken, updateLastJoin, async function (req, res) {
   try {
     return res.json(response(await User.claim(req.params.id), Token.createToken(req.params.id), 200, ""));
   } catch (err) {
