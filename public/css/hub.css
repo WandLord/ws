@@ -1,302 +1,231 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans");
-body, html {
-  height: 100%;
-  width: 100%;
-}
+
 
 body {
-  background: #f4dcc4;
-  background-size: cover;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Open Sans", "Roboto", "Ubuntu", sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #B4A9CD;
+	text-align: left;
+	background-color: #231F31;
 }
 
-::-moz-selection {
-  color: white;
-  background: rgba(170, 170, 170, 0.6);
+.container {
+	margin-top: 5%;
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+	margin-right: auto;
+	margin-left: auto;
 }
 
-::selection {
-  color: white;
-  background: rgba(170, 170, 170, 0.6);
+.row {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+}
+.purple-base{
+	color:#AC45F4;
+	font-weight: bold;
+}
+.color-yellow{
+	color: #fec037;
+	font-weight: bold;
+}
+.border-element {
+	background-color: #3A344C;
+	border-radius: 15px;
+	margin: 5px;
+}
+.user-info{
+    margin: 5px;
+}
+.game-info{
+    margin: 20px 0px 20px 0px;
+    background-color: #231F31;
+	border-radius: 15px;
+}
+.staking-info{
+	margin: 5px;
 }
 
-#triangle {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  width: 0;
-  height: 0;
-  border-bottom: 100vh solid #cfbca8;
-  border-left: 100vw solid transparent;
+/*Rigth Panel buttons*/
+.btn-warning {
+    color: #212529;
+    background-color: #fec037;
+    border-color: #fec037;
 }
 
-.hide {
-  display: none;
+.buttons-user-info{
+	color: #B4A9CD;
+	background-color: #3A344C;
+	border: 3px solid #231F31;
+	border-radius: 15px;
+	font-size: 12px;
+	text-align: center;
+	width: 70%;
+	height: 0%;
+	padding: 10px;
+}
+.buttons-user-info:hover {
+    border: 3px solid #655C7C;
+}
+.buttons-download{
+	width: 120px;
+    height: 120px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+	background-color: #fec037;
+	border: 3px solid #231F31;
+	border-radius: 15px;
+	font-weight: bold;
+	color: #36031e;
+	font-size: 14px;
+	text-align: center;
+	padding: 10px;
+}
+.buttons-download:hover {
+    border: 3px solid #655C7C;
+}
+.btn-outline-purple {
+    color: #B4A9CD;
+	border-radius: 10px;
+	border: 2px solid #655C7C;
+	font-weight: bold;
+	font-size: 16px;
+
+}
+.btn-outline-purple:hover {
+    border-color: #AC45F4;
+	color: #B4A9CD;
 }
 
-#app {
-  color: #CCDAE5;
-  background: #122722;
-  position: relative;
-  border-radius: 15px;
-  z-index: 5;
-  width: 320px;
-  height: 490px;
-  overflow: hidden;
-  box-shadow: 0px 10px 29px 10px rgba(0, 0, 0, 0.25);
+.btn-outline-purple:not(:disabled):not(.disabled).active, .btn-outline-purple:not(:disabled):not(.disabled):active, .show > .btn-outline-purple.dropdown-toggle {
+    color: #B4A9CD;
+    border-color: #AC45F4;
 }
-@media (max-width: 500px) {
-  #app {
-    width: 250px;
-    height: 420px;
-  }
+/*Input Amount*/
+.input-amount {
+    background: #231F31;
+    border-color: #231F31;
+	color: #B4A9CD;
+    width: 150px !important;
 }
-@media (max-height: 430px) {
-  #app {
-    width: 230px;
-    height: 390px;
-  }
+.input-amount:focus {
+	background: #231F31;
+    border-color: #231F31;
+	color: #B4A9CD;
+    width: 150px !important;
+    z-index: 3;
+}
+/*Left Panel buttons*/
+
+.buttons-panel{
+	color: #B4A9CD;
+	background-color: #231F31;
+	border: 3px solid #231F31;
+	font-size: 12px;
+	text-align: center;
+	width: 60%;
+	padding: 5px;
 }
 
-.secondary {
-  color: rgba(204, 218, 229, 0.7);
+
+.buttons-panel:hover {
+    color: #AC45F4;
+    border: 3px solid #AC45F4;
+}
+/*History elemento*/
+
+.table-title-element {
+	background-color: #231F31;
+	border-top-right-radius: 15px;
+	border-top-left-radius: 15px;
 }
 
-.tertiary {
-  color: rgba(204, 218, 229, 0.5);
+/*Load More elemento*/
+
+.table-footer-element {
+	background-color: #231F31;
+	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 15px;
 }
 
-#title {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-#title > h4 {
-  margin: 15px 0 10px 15px;
-}
-@media (max-width: 500px) {
-  #title > h4 {
-    margin-bottom: 10px;
-  }
+/*Tabla history*/
+
+table.table-history {
+	border: 3px solid #231F31;
+	width: 100%;
+	text-align: center;
+	border-collapse: collapse;
+	color: #B4A9CD;
+	margin-bottom: 0rem;
 }
 
-.btc-heading {
-  margin: 0px 10px;
+table.table-history td,
+table.table-history th {
+	border: 2px solid #231F31;
+	padding: 5px 4px;
 }
 
-#balance {
-  margin-left: 25px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-}
-@media (max-width: 500px) {
-  #balance {
-    font-size: 25px;
-    margin: 0px 20px;
-  }
-}
-@media (max-height: 430px) {
-  #balance {
-    font-size: 20px;
-    margin: 0 15px;
-  }
+table.table-history tbody td {
+	font-size: 13px;
 }
 
-.clickable {
-  transition: 0.2s;
-}
-.clickable:active {
-  color: rgba(204, 218, 229, 0.85);
-  transform: scale(0.9);
-}
-.clickable:hover {
-  cursor: pointer;
+table.table-history thead {
+	text-align: center;
+	background: #655C7C;
+	border: 3px solid #231F31;
 }
 
-@media (max-height: 430px) {
-  i {
-    font-size: 25px !important;
-  }
+table.table-history thead th {
+	font-size: 15px;
+	font-weight: bold;
+	color: #B4A9CD;
 }
 
-#menu {
-  position: absolute;
-  right: 15px;
-  top: 8px;
-}
-#menu > i {
-  margin: 28px 0px 10px 20px;
-}
-@media (max-width: 500px) {
-  #menu > i {
-    margin: 35px -6px 0px 15px;
-  }
+/*Tabla Staking*/
+
+table.table-staking {
+
+	width: 100%;
+	text-align: center;
+	color: #B4A9CD;
+	margin-bottom: 1rem;
 }
 
-#wallet-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 80%;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  background: #273531;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.25);
+table.table-staking td,
+table.table-staking th {
+	border: 2px solid #231F31;
+	border-radius: 25px;
+	padding: 5px 4px;
 }
 
-#coin-list {
-  list-style: none;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  height: 20%;
-  margin: 0;
-  padding: 0;
+table.table-staking tbody td {
+	font-size: 15px;
 }
 
-.list-item {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  border-radius: 15px;
-  align-items: center;
-  transition: 0.3s;
-  margin: 15px 10px 0 10px;
-  background: #45504d;
-  padding: 10px;
-}
-@media (max-width: 500px) {
-  .list-item {
-    margin: 15px 5px 0 5px;
-  }
-}
-.list-item:hover {
-  cursor: pointer;
-}
-@media (max-height: 430px) {
-  .list-item {
-    margin: 25px 5px 0px 0px;
-    font-size: 15px;
-  }
+table.table-staking thead {
+	text-align: center;
+	background: #231F31;
+	border-radius: 15px;
+
 }
 
-.selected-coin {
-  background: #45504d;
-  padding: 15px;
-  box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.25);
-}
-@media (max-width: 500px) {
-  .selected-coin {
-    padding: 10px;
-  }
-}
-@media (max-height: 430px) {
-  .selected-coin {
-    padding: 10px;
-  }
+table.table-staking thead th {
+	font-size: 15px;
+	font-weight: bold;
+	color: #B4A9CD;
 }
 
-.coin-name {
-  margin: 0 0 0 0;
-}
+/*Package Cards*/
 
-#caret-down {
-  position: absolute;
-  right: 30px;
-  top: 20px;
-}
-
-#eth-card {
-  width: 85%;
-  height: 65%;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  box-sizing: content-box;
-  overflow-y: auto;
-  background: #45504d;
-  background: radial-gradient(top, #595d73, #434656);
-  background: -moz-radial-gradient(top, #595d73, #434656);
-  box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.25);
-  margin: 25px 0 0 0;
-}
-
-#eth-chart {
-  margin-top: 15px;
-  width: 100%;
-  height: 30%;
-  background: url("https://cryptohistory.org/charts/sparkline/eth-usd/7d/svg?lineColor=9DA8B5&markerColor=585D7B");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-#eth-info {
-  margin-left: 10px;
-  position: relative;
-  align-items: center;
-}
-#eth-info > h4 {
-  margin: 0;
-}
-#eth-info > #right {
-  position: absolute;
-  right: 5px;
-  top: 0;
-  text-align: right;
-}
-
-.amount {
-  font-size: 20px;
-  margin: 5px 0 0 5px;
-}
-@media (max-width: 500px) {
-  .amount {
-    font-size: 16px;
-  }
-}
-@media (max-height: 430px) {
-  .amount {
-    font-size: 16px;
-  }
-}
-
-#profit {
-  color: #7bba6f;
-}
-
-#currency-name {
-  font-weight: 400;
-}
-
-.coin-value {
-  margin: 5px 0 3px 5px;
-}
-
-#transaction-icons {
-  display: flex;
-  margin-top: 15px;
-  justify-content: center;
-  align-items: center;
-}
-@media (max-width: 500px) {
-  #transaction-icons {
-    margin-top: 7px;
-  }
-}
-#transaction-icons > i {
-  margin: 0 5px 0 5px;
+.card-buy{
+	background-color: #231F31;
 }

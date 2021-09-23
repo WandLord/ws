@@ -99,6 +99,11 @@ class UserManager {
                 },
                 accounts: {
                     google: userId
+                },
+                toClaim:
+                {
+                    Refers: 0,
+                    Boss: 0,
                 }
             };
             await MongoDB.insert(process.env.COLLECTION_USER, newUser);

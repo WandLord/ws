@@ -1,131 +1,349 @@
-<html>
-<script>
-      window.onload = () => {
-const uri = window.location.toString();
-
-        if (uri.indexOf('#') > 0) {
-            const clean_uri = uri.substring(0,uri.indexOf('#'));
-            window.history.replaceState({}, document.title, clean_uri);
-        }
-      };
-    </script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
-<meta name="google-signin-client_id" content="806335753793-gi0i8bk6gogih380kl83b8ctciqkit6i.apps.googleusercontent.com">
-
-<script>
-    if (typeof window.ethereum == 'undefined') {
-        alert('MetaMask is NOT installed!');
-    }
-</script>
-
-
+<!doctype html>
+<html lang="en">
+    <script>
+        window.onload = () => {
+  const uri = window.location.toString();
+  
+          if (uri.indexOf('#') > 0) {
+              const clean_uri = uri.substring(0,uri.indexOf('#'));
+              window.history.replaceState({}, document.title, clean_uri);
+          }
+        };
+      </script>
 <head>
-    <title>Wandlord - Hub</title>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
-        integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous" />
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/hub.css">
+    <title>Wandlord</title>
 </head>
-<link rel="stylesheet" href="css/hub.css">
 
 <body>
-    <div id="triangle"></div>
-    <div id="app">
-        <div id="title">
-            <h4 class="tertiary" id="name">Wandlord</h4>
-            <h4 class="tertiary" id="name">UserID: {{user.name}} </h4>
-            <div id="balance"><img src="img/gop.png" width="50px" height="50px"></img>
-                <h3 class="btc-heading" title="Wallet Balance" id="balanceAccount">0.1234</h3>
+    <div class="container">
+        <div class="row">
+            <!--Left Container-->
+            <div class="col-md-12 col-lg-4">
+                <div class="border-element">
+                    <!-- Start Deposit Buttons-->
+                    <div class="row">
+                        <div class="col-4 mt-4 p-0">
+
+                            <div class="text-right">
+                                <button class="btn btn-default buttons-panel ">
+                                    <img src="../img/deposit.svg" width="30" /> Deposit
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-4 mt-4 p-0">
+                            <div class="text-center">
+                                <button class="btn btn-default buttons-panel">
+                                    <img src="../img/withdraw.svg" width="30" /> Withdraw
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-4 mt-4 p-0">
+                            <div class="text-left">
+                                <button class="btn btn-default buttons-panel">
+                                    <img src="../img/history.svg" width="30" /> History
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Deposit Buttons-->
+                    <!-- Start History Rows-->
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-10">
+                            <div class="text-center table-title-element">
+                                <h2 class="mt-3 p-3">History</h2>
+                            </div>
+                            <table class="table table-history">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Date
+                                        </th>
+                                        <th>
+                                            Type
+                                        </th>
+                                        <th>
+                                            Amount
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!--Tabla Data-->
+                                    <tr>
+                                        <td>
+                                            12-12-2020
+                                        </td>
+                                        <td>
+                                            Withdraw
+                                        </td>
+                                        <td>
+                                            12.123
+                                        </td>
+                                    </tr>
+                                    <!--End Data-->
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-12-2020</td>
+                                        <td>Withdraw</td>
+                                        <td>12.123</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="text-center table-footer-element">
+                                <h2 class="p-3 mb-4">Load More</h2>
+                            </div>
+                        </div>
+                        <div class="col-1"></div>
+                    </div>
+                    <!-- End History Rows-->
+
+                    <!-- Start Deposit Rows-->
+                    <div class="row">
+                        <div class="col-1"></div>
+                        <div class="col-10">
+                            <div class="text-center table-title-element">
+                                <h2 class="mt-3 p-3">Deposit</h2>
+                            </div>
+                           
+                            <div class="text-center table-footer-element">
+                                <h2 class="p-3 mb-4">Load More</h2>
+                            </div>
+                        </div>
+                        <div class="col-1"></div>
+                    </div>
+                    <!-- End History Rows-->
+                </div>
+            </div>
+            <!--Right Container-->
+            <div class="col-md-12 col-lg-8">
+                <!--Start User Info-->
+                <div class="row user-info">
+                    <div class="col-2">
+                        <div class="text-left">
+                            <button class="btn btn-default buttons-user-info">
+                                <img src="../img/home.svg" width="35" />
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="text-right">
+                            <p>Username: {{user.name}}</p>
+                            <p>Tokens: {{user.balance}}</p>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="text-right">
+                            <button class="btn btn-default buttons-user-info">
+                                <img src="../img/logout.svg" width="35" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!--End User Info-->
+
+                <!--Start Download Client-->
+                <div class="row border-element">
+                    <div class="col-8">
+                        <div class="row game-info">
+                            <div class="col-5">
+                                <div class="text-center">
+                                    <img src="../img/gamephoto.PNG" class="rounded" alt="Responsive image">
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <h2>
+                                    Wandlord
+                                </h2>
+                                <p>
+                                    Client v12.23
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-4">
+                        <div>
+                            <div class="text-right">
+                                <button class="btn btn-default buttons-download"><p></p>
+                                    <img src="../img/download-to-storage-drive.svg" width="50" /> <p>Download</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--End Download Client-->
+                <!--Start Staking-->
+                <div class="row border-element">
+                    <div class="col-12">
+                        <div class="row staking-info">
+                            <div class="col-12">
+                                <h3 class="color-yellow">
+                                    Gem of Power Staking
+                                </h3>
+                                <p>
+                                    Wandlord is full of token chimbawe and vadim sells potatoes for only half its price
+                                    so you shuld buy fast before it ends also we have discount if your name looks like
+                                    teixi since we have to take care about disabled persons.
+                                </p>
+                                <table class="table table-staking">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Token
+                                            </th>
+                                            <th>
+                                                APY
+                                            </th>
+                                            <th>
+                                                Duration (days)
+                                            </th>
+                                            <th>
+                                                Ampount
+                                            </th>
+                                            <th>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!--Tabla Data-->
+                                        <tr>
+                                            <td class="text-center align-middle purple-base">
+                                                 <img src="../img/icon_itemicon_jewel2_purple.png" width="20" /> GOP
+                                            </td>
+                                            <td class="text-center align-middle font-weight-bold">
+                                                14%
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-outline-purple">15</button>
+                                                <button type="button" class="btn btn-outline-purple">30</button>
+                                                <button type="button" class="btn btn-outline-purple">60</button>
+                                                <button type="button" class="btn btn-outline-purple">90</button>
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input class="form-control text-right input-amount" type="text"
+                                                        placeholder="123456789 GOP">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-warning">Verify</button>
+                                            </td>
+                                        </tr>
+                                        <!--End Data-->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row border-element pb-3">
+                    <div class="col-12">
+                        <div class="row staking-info">
+                            <div class="col-12">
+                                <h3 class="color-yellow">
+                                   NFT Starter Packs
+                                </h3>
+                                <p>
+                                    Wandlord is full of token chimbawe and vadim sells potatoes for only half its price
+                                    so you shuld buy fast before it ends also we have discount if your name looks like
+                                    teixi since we have to take care about disabled persons.
+                                </p>
+                            </div>
+                            <div class="col-4">
+                                <div class="card card-buy text-center">
+                                    <img class="card-img-top" src="../img/card1.PNG" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Standard</h5>
+                                        <p class="card-text">50€</p>
+                                        <a href="#" class="btn btn-primary">Buy now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card card-buy text-center">
+                                    <img class="card-img-top" src="../img/card1.PNG" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Advanced</h5>
+                                        <p class="card-text">100€</p>
+                                        <a href="#" class="btn btn-primary">Buy now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card card-buy text-center">
+                                    <img class="card-img-top" src="../img/card1.PNG" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Premium</h5>
+                                        <p class="card-text">250€</p>
+                                        <a href="#" class="btn btn-primary">Buy now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="menu"><i class="fas fa-download fa-2x secondary clickable" title="Download"></i><i
-                class="fas fa-sign-out-alt fa-2x secondary clickable" title="Sign Out" onclick="signOut();"></i></div>
-        <div id="wallet-container">
-            <ul id="coin-list">
-                <li class="list-item">
-                    <i class="fas fa-hand-holding-usd fa-2x secondary clickable" title="Transaction History"></i>
-                    <h5 class="coin-name">Extract</h5>
-                </li>
-                <li class="list-item selected-coin">
-                    <i class="fas fa-money-bill-alt fa-2x secondary clickable" title="Transaction History"></i>
-                    <h5 class="coin-name">Deposit</h5>
-                </li>
-                <li class="list-item">
-                    <i class="fas fa-list-alt fa-2x secondary clickable" title="Transaction History"></i>
-                    <h5 class="coin-name">History</h5>
-                </li>
-            </ul>
-            <div id="eth-card">
-                <table style="width:100%">
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Cantity</th>
-                    </tr>
-                    <tr>
-                        <td>12-10-2021</td>
-                        <td>Deposit</td>
-                        <td>10</td>
-                    </tr>
-                    <tr>
-                        <td>12-12-2021</td>
-                        <td>Extract</td>
-                        <td>40</td>
-                    </tr>
-                </table>
-            </div>
-            <button class="enableEthereumButton">Enable Ethereum</button>
-            <button class="sendEthButton btn">Send Eth</button>
-        </div>
     </div>
-    </div>
-    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
-<style>
-    table,
-    th,
-    td {
-        color: #CCDAE5;
-        border: 1px solid black;
-    }
-</style>
-<script>
-    const ethereumButton = document.querySelector('.enableEthereumButton');
-    const sendEthButton = document.querySelector('.sendEthButton');
-    ethereumButton.addEventListener('click', async () => {
-        const accounts = await ethereum.request({ service: 'eth_requestAccounts' });
-        const account = accounts[0];
-        //TODO SEND wallet to mongo
-        console.log(account);
-    });
-
-    let accounts = [];
-
-    //Sending Ethereum to an address
-    sendEthButton.addEventListener('click', () => {
-        ethereum
-            .request({
-                method: 'eth_sendTransaction',
-                params: [
-                    {
-                        from: accounts[0],
-                        data: '0x682f9f8287da04154ddfe84780cac1d004b36dc6',
-                        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-                        gasPrice: '0x09184e72a000',
-                        gas: '0x2710',
-                        chainId: '0x56',
-                    },
-                ],
-            })
-            .then((txHash) => console.log(txHash))
-            .catch((error) => console.error);
-    });
-
-    ethereumButton.addEventListener('click', () => {
-        getAccount();
-    });
-
-    async function getAccount() {
-        accounts = await ethereum.request({ service: 'eth_requestAccounts' });
-    }
-</script>
