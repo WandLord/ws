@@ -1,13 +1,18 @@
-const { Console } = require('console');
 const Web3 = require('web3');
-const web3 = new Web3('https://bsc-dataseed1.binance.org:443');
+const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545');
 
-let tokenAddress = "0x682f9f8287da04154ddfe84780cac1d004b36dc6";
-let walletAddress = "0xDFE3d9B97Dd9a2C18e54B56a902a31fdf6B368B7";
+const tokenAddress = "0xac620c28FEB64fC1A0f4035F2E5743dd6dDbAc79";
+const walletAddress = "0xDFE3d9B97Dd9a2C18e54B56a902a31fdf6B368B7";
+
+const decimals = web3.utils.toBN(8);
+const amount = web3.utils.toBN(100);
 
 // Alberto = 0x08FE19440595B26A934bbD747761FbB1eb2640F8
-// Teixi = 0xDFE3d9B97Dd9a2C18e54B56a902a31fdf6B368B7
-let minABI = [
+const Teixi = "0xDFE3d9B97Dd9a2C18e54B56a902a31fdf6B368B7";
+const TeamWallet = "0x47BF3eEfea6E3fefD4cd6948717240cD2bfbA142";
+const GameWallet = "0xE08b5c4BFAd62a63ffc9938401B5E6060291Cfe1";
+
+const minABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -346,23 +351,20 @@ let minABI = [
 	}
 ];
 
-//const contract = new web3.eth.Contract(minABI, tokenAddress);
-async function getBalance() {
-  const result = await contract.methods.balanceOf(walletAddress).call(); // 29803630997051883414242659
-  const format = web3.utils.fromWei(result); // 29803630.997051883414242659
-  var stringValue = result.toString();
-  var x = stringValue.substring(0, stringValue.length - 8) + "." + stringValue.substring(stringValue.length - 8)
-}
 async function tst() {
-  let decimals = web3.utils.toBN(8);
-  let amount = web3.utils.toBN(100);
-  let contract = new web3.eth.Contract(minABI, tokenAddress);
-  // calculate ERC20 token amount
-  let value = 10;//amount.times(web3.utils.toBN(10).pow(decimals));
-  // call transfer function
-  contract.methods.transfer(walletAddress, value, (error, txHash) => {
-    // it returns tx hash because sending tx
-  });
+	try {
+		let contract = new web3.eth.Contract(minABI, tokenAddress);
+		// calculate ERC20 token amount
+		let value = amount.mul(web3.utils.toBN(10).pow(decimals));
+		// call transfer function
+		contract.methods.transfer(Teixi, value).send({ from: GameWallet })
+			.on('transactionHash', function (hash) {
+				console.log(hash);
+			});
+	} catch (err) {
+		console.log(err);
+	}
+
+
 }
 tst();
-  //getBalance();

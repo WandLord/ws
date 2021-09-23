@@ -13,6 +13,7 @@ class UserManager {
     async forge(userId, mainWeaponId, secondayWeaponId) {
         try {
             const result = await this._validateForge(userId, mainWeaponId, secondayWeaponId);
+            console.log(result);
             if (!result.isValid) {
                 logger.Hack({ service: "UserManager.forge", data: { userId, mainWeaponId, secondayWeaponId, result }, payload: Errors.INVALID_FORGE() });
                 throw Errors.INVALID_FORGE();
@@ -262,7 +263,6 @@ class UserManager {
             const W1price = mainWeapon.dps * Params.FORGE_PRICE[mainWeapon.rarity] / 100 + mainWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
             const W2price = secondaryWeapon.dps * Params.FORGE_PRICE[secondaryWeapon.rarity] / 100 + secondaryWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
             price = Math.round((W1price + W2price) * 100) / 100;
-            console.log(price, userData.balance, price > userData.balance)
             if (price > userData.balance) return result;
         }
 

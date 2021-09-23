@@ -17,7 +17,6 @@ class WeaponManager {
             newWeapon.level = 0;
             return { weaponId, newWeapon };
         } catch (err) {
-            console.log(err);
             logger.SystemError({ service: "WeaponManager.forgeWeapon", data: { _weapon1, _weapon2 }, payload: err });
             throw Errors.INVALID_FORGE();
         }

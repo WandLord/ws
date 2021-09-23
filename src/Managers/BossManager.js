@@ -15,7 +15,6 @@ let totalDPS = 0;
 class BossManager {
 
     isFighting(id) {
-        console.log("isFighting ", actualBoss);
         if(actualBoss.fighting) 
         if (actualBoss.fighting.hasOwnProperty(id)) {
             if (actualBoss.fighting[id].fight) {
@@ -32,7 +31,6 @@ class BossManager {
             delete auxBoss.reward;
             delete auxBoss.fighting;
             auxBoss.dps = totaldps;
-            console.log("getStatus ", auxBoss, totalPlayers);
             return auxBoss;
         }
         logger.SystemCritical({ service: "BossManager.getStatus", data: { actualBoss } });
@@ -67,22 +65,18 @@ class BossManager {
             logger.Hack({ service: "BossManager.leftPlayer", data: { id }, payload: Errors.INVALID_JOIN_BATTLE() });
             throw Errors.INVALID_LEFT_BATTLE();
         }
-        console.log("L67 ", actualBoss.fighting);
         const bossUserData = actualBoss.fighting[id];
         const userField1 = "fighting." + id + ".totalDPS";
         const userField2 = "fighting." + id + ".fight";
         const query = { enable: true };
-        console.log("L72 ", endTimeStamp);
         const date = (endTimeStamp) ? endTimeStamp : new Date();
         const _totaldps = ((date.getTime() - new Date(bossUserData.lastJoin).getTime()) / 1000) * bossUserData.dps;
-        console.log("L75 ", _totaldps);
         const value = { $inc: { [userField1]: _totaldps }, $set: { [userField2]: false } };
         const isUpdated = await MongoDB.update(process.env.COLLECTION_BOSS, query, value);
         if (!isUpdated) {
             logger.Hack({ service: "BossManager.leftPlayer", data: { fighting, id }, payload: Errors.INVALID_JOIN_BATTLE() });
             throw Errors.INVALID_LEFT_BATTLE();
         }
-        console.log("L82 ", actualBoss);
         totaldps -= bossUserData.dps;
         actualBoss.fighting[id].fight = false;
         actualBoss.fighting[id].totalDPS += _totaldps;
@@ -101,7 +95,6 @@ class BossManager {
                 const bossUserData = actualBoss.fighting[key];
                 const dpsPercent = (bossUserData.totalDPS * 100) / actualBoss.maxHP;
                 const userReward = Math.round(((actualBoss.reward * dpsPercent) / 100) * 100) / 100;
-                console.log(key, dpsPercent, userReward, actualBoss.reward, actualBoss.maxHP, bossUserData.totalDPS);
                 bulk.push({
                     "updateOne": {
                         "filter": { "_id": MongoDB.createId(key) },
@@ -114,11 +107,7 @@ class BossManager {
             endTimeStamp = null;
             await this._disableBoss();
             await this._createBoss();
-            console.log("shutdown system");
-            process.exit(1);
         } catch (err) {
-            console.log(err);
-            process.exit(1);
         }
     }
 
