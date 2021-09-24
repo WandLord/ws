@@ -14,7 +14,7 @@ module.exports =
     WEAPON_INCREMENT_FORGE: 5,
     WEAPON_DPS_DEFAULT: 12,
     WEAPON_RARITY: {
-        10: "common",
+        50: "common",
         100: "uncommon",
         500: "rare",
         1000: "epic",

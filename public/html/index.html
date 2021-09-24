@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
-
+    <script>
+        window.onload = () => {
+  const uri = window.location.toString();
+  
+          if (uri.indexOf('#') > 0) {
+              const clean_uri = uri.substring(0,uri.indexOf('#'));
+              window.history.replaceState({}, document.title, clean_uri);
+          }
+        };
+      </script>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -229,9 +238,9 @@
                     <div class="col-8">
                         <div class="text-right" style="margin-right: -50px;">
                             <span><img src="../img/user.svg" width="13">
-                                0xF005738586e5E2258696bc7Dbd0B43C51C40AB52</span>
+                                {{user.name}}</span>
                             <br>
-                            <span><img src="../img/icon_itemicon_jewel2_purple.png" width="13"> 4.368.499</span>
+                            <span><img src="../img/icon_itemicon_jewel2_purple.png" width="13">{{user.balance}}</span>
                         </div>
                     </div>
                     <div class="col-2" style="padding-right: 0px;">
@@ -510,7 +519,7 @@
         </div>
     </div>
     <!-- Optional JavaScript -->
-    <script src="../js/alpha.js"></script>
+    <script src="js/alpha.js"></script>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
