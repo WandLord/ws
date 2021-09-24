@@ -353,14 +353,12 @@ const minABI = [
 
 async function tst() {
 	try {
-		let contract = new web3.eth.Contract(minABI, tokenAddress);
+		const contract = new web3.eth.Contract(minABI, tokenAddress);
 		// calculate ERC20 token amount
-		let value = amount.mul(web3.utils.toBN(10).pow(decimals));
-		// call transfer function
-		contract.methods.transfer(Teixi, value).send({ from: GameWallet })
-			.on('transactionHash', function (hash) {
-				console.log(hash);
-			});
+		const value = amount.mul(web3.utils.toBN(10).pow(decimals));
+		console.log(value);
+		const contractData = contract.transfer(Teixi, value);
+		console.log(contractData);
 	} catch (err) {
 		console.log(err);
 	}

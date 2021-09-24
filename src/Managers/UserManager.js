@@ -6,7 +6,7 @@ const Currensy = require('./CurrencyManager');
 const Crypto = require('./CryptoManager');
 const Errors = require('../utils/Errors');
 const logger = require('../utils/Logger');
-
+const safed = require('safe-decimals');
 
 class UserManager {
 
@@ -262,7 +262,7 @@ class UserManager {
             const secondaryWeapon = userData.inventory[secondaryWeaponId];
             const W1price = mainWeapon.dps * Params.FORGE_PRICE[mainWeapon.rarity] / 100 + mainWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
             const W2price = secondaryWeapon.dps * Params.FORGE_PRICE[secondaryWeapon.rarity] / 100 + secondaryWeapon.forges * Params.FORGE_INC_PRICE_FORGES;
-            price = Math.round((W1price + W2price) * 100) / 100;
+            price = (W1price + W2price).safe();
             if (price > userData.balance) return result;
         }
 

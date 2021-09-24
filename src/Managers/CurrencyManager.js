@@ -1,16 +1,17 @@
 const Params = require('../utils/Constants');
 const MongoDB = require('../Connectors/MongoConnector');
 const Logger = require('../utils/Logger');
+const safed = require('safe-decimals');
 
 class CurrencyManager {
     async spend(userId, price, on, referId) {
         try {
             price = price;
-            const refer = Math.round((price / 100) * Params.REFER_PERCETNAGE * 100) / 100;
+            const refer = ((price / 100) * Params.REFER_PERCETNAGE).safe();
             price -= refer;
-            const burn = Math.round((price / 100) * Params.TOKEN_TO_BURN * 100) / 100;
-            const boss = Math.round((price / 100) * Params.TOKEN_TO_BOSS * 100) / 100;
-            const profit = Math.round((price / 100) * Params.TOKEN_TO_US * 100) / 100;
+            const burn = ((price / 100) * Params.TOKEN_TO_BURN).safe();
+            const boss = ((price / 100) * Params.TOKEN_TO_BOSS).safe();
+            const profit = ((price / 100) * Params.TOKEN_TO_US).safe();
             const query = { name: "currency" };
             const value = { $inc: { burn: burn, boss: boss, profit: profit } };
             const updateCurrencyData = await MongoDB.update(process.env.COLLECTION_DATA, query, value);

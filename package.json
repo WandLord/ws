@@ -18,6 +18,7 @@
     "mongodb": "^4.1.0",
     "mongoose": "^5.13.7",
     "nunjucks": "^3.2.3",
+    "safe-decimals": "^1.0.0",
     "simple-oauth2": "^4.2.0",
     "uuid": "^8.3.2",
     "web3": "^1.5.1"

@@ -3,6 +3,7 @@ const Errors = require('../utils/Errors');
 const logger = require('../utils/Logger');
 const Params = require('../utils/Constants');
 const Currensy = require('./CurrencyManager');
+const safed = require('safe-decimals');
 
 let actualBoss = {};
 let totaldps = 0;
@@ -94,7 +95,7 @@ class BossManager {
                 if (this.isFighting(key)) await this.leftPlayer(key);
                 const bossUserData = actualBoss.fighting[key];
                 const dpsPercent = (bossUserData.totalDPS * 100) / actualBoss.maxHP;
-                const userReward = Math.round(((actualBoss.reward * dpsPercent) / 100) * 100) / 100;
+                const userReward = ((actualBoss.reward * dpsPercent) / 100).safe();
                 bulk.push({
                     "updateOne": {
                         "filter": { "_id": MongoDB.createId(key) },
