@@ -6,7 +6,7 @@ class WeaponManager {
 
     forgeWeapon(_weapon1, _weapon2) {
         try {
-            const _dps = Math.round(_weapon1.dps + _weapon2.dps / 2) + Params.WEAPON_INCREMENT_FORGE;
+            const _dps = Math.round((_weapon1.dps + _weapon2.dps) / 2) + Params.WEAPON_INCREMENT_FORGE;
             const newWeapon = {
                 dps: _dps,
                 icon: this._generateRandomIcon(),
