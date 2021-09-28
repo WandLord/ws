@@ -45,6 +45,12 @@ body {
 .user-info{
     margin: 5px;
 }
+
+.hidden_user_info {
+	display: none;
+	margin-right: 5px;
+}
+
 .game-info{
     margin: 20px 0px 20px 20px;
     background-color: #231F31;

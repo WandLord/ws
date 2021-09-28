@@ -10,6 +10,64 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="css/hub.css">
     <title>Wandlord</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"
+        integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+    <script>
+        let web3 = null;
+        let provider = null;
+        let address = '';
+
+        $(function () {
+
+            const ethereumButton = document.querySelector('#connect');
+            ethereumButton.addEventListener('click', () => {
+
+                async function getAccount() {
+
+                    await window.ethereum.enable();
+                    address = window.ethereum.selectedAddress || window.ethereum.address;
+
+                    provider = window.ethereum;
+                    web3 = new Web3(provider);
+
+                    if (address && address.length > 0) {
+                        alert("MetaMask connected, get the $GOP!")
+                        $('#current_address').text(address);
+                        $('.hidden_user_info').css('display', 'inline-block');
+                        $('#connect').css('display', 'none');
+                    }
+                }
+
+                getAccount();
+            });
+
+            $("#claim").click(function () {
+               return;
+                
+                const abi = [
+                    {
+                        "inputs": [],
+                        "name": "claim",
+                        "outputs": [],
+                        "type": "function"
+                    }
+                ];
+
+                const lootAddress = '0xtest';
+                const contract = new web3.eth.Contract(abi, lootAddress);
+                contract.methods.claim().send({
+                    from: address,
+                    gas: 470000,
+                    value: 0,
+                    gasPrice: 2250000000
+                }).then(rs=>{
+                    alert('success');
+                })
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -228,10 +286,13 @@
                     </div>
                     <div class="col-8">
                         <div class="text-right" style="margin-right: -50px;">
-                            <span><img src="../img/user.svg" width="13">
-                                0xF005738586e5E2258696bc7Dbd0B43C51C40AB52</span>
+                            <img class="hidden_user_info" src="../img/user.svg" width="13"><span id="current_address"></span>
+                            <button class="btn btn-default buttons-send" id="connect">
+                                <img src="../img/metamask.svg" width="25" />
+                                <span class="ml-1">CONNECT</span>
+                            </button>
                             <br>
-                            <span><img src="../img/icon_itemicon_jewel2_purple.png" width="13"> 4.368.499</span>
+                            <img class="hidden_user_info" src="../img/icon_itemicon_jewel2_purple.png" width="13"><span class="hidden_user_info">4.368.499</span>
                         </div>
                     </div>
                     <div class="col-2" style="padding-right: 0px;">
